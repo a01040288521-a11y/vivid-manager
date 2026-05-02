@@ -1282,11 +1282,11 @@ function addMon() {
 /* ══ 모바일 ══ */
 function addMobRow()  { settle[curMon].mob.push({ k:uid(), date:'', l:'새 매출처', rev:0, note:'', link:'' }); renderSettleInput(); save(); }
 function delMobRow(k) { settle[curMon].mob = settle[curMon].mob.filter(r=>r.k!==k); renderSettleInput(); deferDash(); save(); }
-function setM(k,f,v)  { const r=settle[curMon].mob.find(x=>x.k===k); if(r) r[f]=(f==='l'||f==='date'||f==='note'||f==='link')?v:parseInput(v); updateRevFoot(); deferDash(); save(); }
+function setM(k,f,v)  { const r=settle[curMon].mob.find(x=>x.k===k); if(r) r[f]=(f==='l'||f==='date'||f==='note'||f==='link')?v:parseInput(v); if(f==='link') renderSettleInput(); updateRevFoot(); deferDash(); save(); }
 /* ══ 홈 ══ */
 function addHomRow()  { settle[curMon].hom.push({ k:uid(), date:'', l:'새 매출처', rev:0, note:'', link:'' }); renderSettleInput(); save(); }
 function delHomRow(k) { settle[curMon].hom = settle[curMon].hom.filter(r=>r.k!==k); renderSettleInput(); deferDash(); save(); }
-function setH(k,f,v)  { const r=settle[curMon].hom.find(x=>x.k===k); if(r) r[f]=(f==='l'||f==='date'||f==='note'||f==='link')?v:parseInput(v); updateRevFoot(); deferDash(); save(); }
+function setH(k,f,v)  { const r=settle[curMon].hom.find(x=>x.k===k); if(r) r[f]=(f==='l'||f==='date'||f==='note'||f==='link')?v:parseInput(v); if(f==='link') renderSettleInput(); updateRevFoot(); deferDash(); save(); }
 /* ══ 중고폰 ══ */
 function addUsedRow()  { if(!settle[curMon].used) settle[curMon].used=[]; settle[curMon].used.push({ k:uid(), custName:'', openDate:'', saleDate:'', amt:0, saleCompany:'', payDate:'', note:'' }); renderSettleInput(); save(); }
 function delUsedRow(k) { settle[curMon].used = (settle[curMon].used||[]).filter(r=>r.k!==k); renderSettleInput(); deferDash(); save(); }
@@ -1341,7 +1341,10 @@ function renderSettleInput() {
     <td><input class="ni ni-l" type="text" value="${s.note||''}" onchange="setM('${s.k}','note',this.value)" placeholder="비고"></td>
     <td style="text-align:center">
       ${s.link
-        ? `<a href="${s.link}" target="_blank" style="font-size:11px;color:var(--blue);font-weight:600;text-decoration:none;background:var(--blue-bg);padding:3px 8px;border-radius:5px;white-space:nowrap">📎 열기</a>`
+        ? `<div style="display:flex;align-items:center;gap:4px">
+          <a href="${s.link}" target="_blank" style="font-size:11px;color:var(--blue);font-weight:600;text-decoration:none;background:var(--blue-bg);padding:3px 8px;border-radius:5px;white-space:nowrap">📎 열기</a>
+          <button onclick="setM('${s.k}','link','')" style="border:none;background:none;color:var(--text3);cursor:pointer;font-size:13px;padding:0 3px" title="링크 삭제">×</button>
+        </div>`
         : `<input class="ni ni-l" type="text" value="" placeholder="드라이브 링크" style="font-size:11px" onchange="setM('${s.k}','link',this.value)">`
       }
     </td>
@@ -1356,7 +1359,10 @@ function renderSettleInput() {
     <td><input class="ni ni-l" type="text" value="${s.note||''}" onchange="setH('${s.k}','note',this.value)" placeholder="비고"></td>
     <td style="text-align:center">
       ${s.link
-        ? `<a href="${s.link}" target="_blank" style="font-size:11px;color:var(--blue);font-weight:600;text-decoration:none;background:var(--blue-bg);padding:3px 8px;border-radius:5px;white-space:nowrap">📎 열기</a>`
+        ? `<div style="display:flex;align-items:center;gap:4px">
+          <a href="${s.link}" target="_blank" style="font-size:11px;color:var(--blue);font-weight:600;text-decoration:none;background:var(--blue-bg);padding:3px 8px;border-radius:5px;white-space:nowrap">📎 열기</a>
+          <button onclick="setM('${s.k}','link','')" style="border:none;background:none;color:var(--text3);cursor:pointer;font-size:13px;padding:0 3px" title="링크 삭제">×</button>
+        </div>`
         : `<input class="ni ni-l" type="text" value="" placeholder="드라이브 링크" style="font-size:11px" onchange="setH('${s.k}','link',this.value)">`
       }
     </td>
