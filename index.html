@@ -1611,7 +1611,67 @@ function goTab(id) {
   document.querySelectorAll('.sec').forEach(s => s.classList.remove('active'));
   document.getElementById('t-' + id).classList.add('active');
 }
+function downloadExcel(type) {
+  const d = settle[curMon];
+  const wb = XLSX.utils.book_new();
+  let ws, rows, headers, filename;
 
+  if (type === 'mob') {
+    headers = ['날짜', '매출처', '매출금액', '비고'];
+    rows = (d.mob||[]).map(s => [s.date||'', s.l||'', s.rev||0, s.note||'']);
+    rows.push(['', '합계', (d.mob||[]).reduce((a,s)=>a+(s.rev||0),0), '']);
+    filename = `모바일매출_${curMon}.xlsx`;
+  } else if (type === 'hom') {
+    headers = ['날짜', '매출처', '매출금액', '비고'];
+    rows = (d.hom||[]).map(s => [s.date||'', s.l||'', s.rev||0, s.note||'']);
+    rows.push(['', '합계', (d.hom||[]).reduce((a,s)=>a+(s.rev||0),0), '']);
+    filename = `홈매출_${curMon}.xlsx`;
+  } else if (type === 'used') {
+    headers = ['고객명', '개통일자', '매각일자', '매각금액', '매각업체', '대금일자', '비고'];
+    rows = (d.used||[]).map(s => [s.custName||'', s.openDate||'', s.saleDate||'', s.amt||0, s.saleCompany||'', s.payDate||'', s.note||'']);
+    rows.push(['합계', '', '', (d.used||[]).reduce((a,s)=>a+(s.amt||0),0), '', '', '']);
+    filename = `중고폰매출_${curMon}.xlsx`;
+  } else if (type === 'card') {
+    headers = ['고객명', '개통일자', '지원금액', '처리일자', '비고'];
+    rows = (d.card_sup||[]).map(s => [s.custName||'', s.openDate||'', s.amt||0, s.processDate||'', s.note||'']);
+    rows.push(['합계', '', (d.card_sup||[]).reduce((a,s)=>a+(s.amt||0),0), '', '']);
+    filename = `카드지원_${curMon}.xlsx`;
+  } else if (type === 'cash') {
+    headers = ['고객명', '개통일자', '지원금액', '처리일자', '비고'];
+    rows = (d.cash_sup||[]).map(s => [s.custName||'', s.openDate||'', s.amt||0, s.processDate||'', s.note||'']);
+    rows.push(['합계', '', (d.cash_sup||[]).reduce((a,s)=>a+(s.amt||0),0), '', '']);
+    filename = `현금지원_${curMon}.xlsx`;
+  } else if (type === 'opx') {
+    headers = ['대분류', '세부항목', '지급방법', '날짜', '금액', '비고'];
+    rows = [];
+    (d.opx||[]).forEach(o => {
+      (o.subs||[]).forEach(s => {
+        rows.push([o.l||'', s.l||'', s.p||'', s.date||'', s.amt||0, s.note||'']);
+      });
+      rows.push([o.l+' 소계', '', '', '', (o.subs||[]).reduce((a,s)=>a+(s.amt||0),0), '']);
+    });
+    rows.push(['전체 합계', '', '', '', (d.opx||[]).reduce((a,o)=>a+(o.subs||[]).reduce((b,s)=>b+(s.amt||0),0),0), '']);
+    filename = `영업외비용_${curMon}.xlsx`;
+  } else if (type === 'flow') {
+    headers = ['날짜', '구분', '내용', '분류', '지급방법', '금액'];
+    const allRows = buildAllFlowRows();
+    rows = allRows.map(r => [r.date||'', r.type==='in'?'입금':'지출', r.lbl||'', r.cat||'', r.pay||'', r.type==='in'?r.amt:-r.amt]);
+    const totIn = allRows.filter(r=>r.type==='in').reduce((a,r)=>a+r.amt,0);
+    const totOut = allRows.filter(r=>r.type==='out').reduce((a,r)=>a+r.amt,0);
+    rows.push(['','','','','입금 합계', totIn]);
+    rows.push(['','','','','지출 합계', -totOut]);
+    rows.push(['','','','','잔액', totIn-totOut]);
+    filename = `입출금내역_${curMon}.xlsx`;
+  }
+
+  const wsData = [headers, ...rows];
+  ws = XLSX.utils.aoa_to_sheet(wsData);
+  ws['!cols'] = wsData[0].map((_, i) => ({
+    wch: Math.max(...wsData.map(r => String(r[i]||'').length), String(wsData[0][i]).length) + 2
+  }));
+  XLSX.utils.book_append_sheet(wb, ws, curMon);
+  XLSX.writeFile(wb, filename);
+}
 function renderAll() { renderDash(); renderSettleInput(); renderFlow(); renderComp(); }
 
 /* ══ 시작 ══ */
