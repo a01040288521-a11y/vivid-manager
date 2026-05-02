@@ -666,6 +666,7 @@ tr:hover:not(.tot-row):not(.cat-row) td { background: #FAFBFD; }
       <tbody></tbody><tfoot></tfoot>
     </table>
     <button class="btn-add-row" onclick="addMobRow()">+ 매출처 추가</button>
+    <div style="margin-top:6px;text-align:right"><button class="btn-excel" onclick="downloadExcel('mob')">📥 모바일매출 엑셀</button></div>
   </div>
   <div class="card">
     <div class="card-title">
@@ -678,6 +679,7 @@ tr:hover:not(.tot-row):not(.cat-row) td { background: #FAFBFD; }
       <tbody></tbody><tfoot></tfoot>
     </table>
     <button class="btn-add-row" onclick="addHomRow()">+ 매출처 추가</button>
+    <div style="margin-top:6px;text-align:right"><button class="btn-excel" onclick="downloadExcel('hom')">📥 홈매출 엑셀</button></div>
   </div>
   <div class="card">
     <div class="card-title">
@@ -690,6 +692,7 @@ tr:hover:not(.tot-row):not(.cat-row) td { background: #FAFBFD; }
       <tbody></tbody><tfoot></tfoot>
     </table>
     <button class="btn-add-row" onclick="addUsedRow()">+ 항목 추가</button>
+    <div style="margin-top:6px;text-align:right"><button class="btn-excel" onclick="downloadExcel('used')">📥 중고폰 엑셀</button></div>
   </div>
   <!-- 영업비용 -->
   <div class="card">
@@ -705,6 +708,7 @@ tr:hover:not(.tot-row):not(.cat-row) td { background: #FAFBFD; }
         <tbody></tbody><tfoot></tfoot>
       </table>
       <button class="btn-add-row" onclick="addCardRow()" style="margin-top:6px">+ 카드지원 추가</button>
+      <div style="margin-top:6px;text-align:right"><button class="btn-excel" onclick="downloadExcel('card')">📥 카드지원 엑셀</button></div>
     </div>
     <hr class="inner-divider">
       <div class="inner-label"><span class="dot" style="background:var(--blue)"></span>현금지원</div>
@@ -714,6 +718,7 @@ tr:hover:not(.tot-row):not(.cat-row) td { background: #FAFBFD; }
         <tbody></tbody><tfoot></tfoot>
       </table>
       <button class="btn-add-row" onclick="addCashRow()" style="margin-top:6px">+ 현금지원 추가</button>
+    <div style="margin-top:6px;text-align:right"><button class="btn-excel" onclick="downloadExcel('cash')">📥 현금지원 엑셀</button></div>
     </div>
   </div>
   <div class="card">
@@ -725,6 +730,7 @@ tr:hover:not(.tot-row):not(.cat-row) td { background: #FAFBFD; }
       <tfoot id="opx-foot"></tfoot>
     </table>
     <button class="btn-add-row" onclick="addOpxCat()">+ 대분류 추가</button>
+    <div style="margin-top:6px;text-align:right"><button class="btn-excel" onclick="downloadExcel('opx')">📥 영업외비용 엑셀</button></div>
   </div>
 </div>
 
@@ -745,6 +751,7 @@ tr:hover:not(.tot-row):not(.cat-row) td { background: #FAFBFD; }
           <option>고정비</option><option>비품</option><option>세금</option>
         </select>
         <span style="margin-left:auto;font-size:12px;color:var(--text3)" id="fl-cnt"></span>
+        <button class="btn-excel" onclick="downloadExcel('flow')">📥 엑셀 다운로드</button>
       </div>
     </div>
     <table id="flow-list-tbl">
