@@ -15,10 +15,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <!-- SheetJS -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-<!-- Firebase SDK -->
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+<!-- Firebase SDK: 동적 로드 (아래 JS에서 처리) -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -786,7 +783,7 @@ tr:hover:not(.tot-row):not(.cat-row) td { background: #FAFBFD; }
       <div class="cw"><canvas id="c-cost"></canvas></div>
     </div>
   </div>
-  <div class="card">
+  <div class="card" style="display:none">
     <div class="card-title">수익 흐름 요약</div>
     <table class="flow-summary" id="flow-tbl"></table>
   </div>
@@ -820,8 +817,8 @@ tr:hover:not(.tot-row):not(.cat-row) td { background: #FAFBFD; }
       <button class="btn-excel" onclick="downloadExcel('mob')">📥 엑셀</button></div>
     </div>
     <table id="mob-tbl">
-      <colgroup><col style="width:88px"><col style="width:130px"><col style="width:130px"><col><col style="width:26px"></colgroup>
-      <thead><tr><th>날짜</th><th>매출처</th><th class="r">매출금액</th><th>비고</th><th></th></tr></thead>
+      <colgroup><col style="width:88px"><col style="width:120px"><col style="width:120px"><col><col style="width:80px"><col style="width:26px"></colgroup>
+      <thead><tr><th>날짜</th><th>매출처</th><th class="r">매출금액</th><th>비고</th><th>정산서</th><th></th></tr></thead>
       <tbody></tbody><tfoot></tfoot>
     </table>
     <button class="btn-add-row" onclick="addMobRow()">+ 매출처 추가</button>
@@ -833,8 +830,8 @@ tr:hover:not(.tot-row):not(.cat-row) td { background: #FAFBFD; }
       <button class="btn-excel" onclick="downloadExcel('hom')">📥 엑셀</button></div>
     </div>
     <table id="hom-tbl">
-      <colgroup><col style="width:88px"><col style="width:130px"><col style="width:130px"><col><col style="width:26px"></colgroup>
-      <thead><tr><th>날짜</th><th>매출처</th><th class="r">매출금액</th><th>비고</th><th></th></tr></thead>
+      <colgroup><col style="width:88px"><col style="width:120px"><col style="width:120px"><col><col style="width:80px"><col style="width:26px"></colgroup>
+      <thead><tr><th>날짜</th><th>매출처</th><th class="r">매출금액</th><th>비고</th><th>정산서</th><th></th></tr></thead>
       <tbody></tbody><tfoot></tfoot>
     </table>
     <button class="btn-add-row" onclick="addHomRow()">+ 매출처 추가</button>
@@ -966,58 +963,50 @@ tr:hover:not(.tot-row):not(.cat-row) td { background: #FAFBFD; }
 
 <script>
 
-// ━━ Firebase 초기화 ━━
-const firebaseConfig = {
-  apiKey: "AIzaSyBAXjufQXUgEXr8J8Y594gmqRvTDAT0fsc",
-  authDomain: "vivid-manager.firebaseapp.com",
-  projectId: "vivid-manager",
-  storageBucket: "vivid-manager.firebasestorage.app",
-  messagingSenderId: "307095487270",
-  appId: "1:307095487270:web:6344e7a13d920b01ab37e7"
-};
-firebase.initializeApp(firebaseConfig);
-const auth = firebase.auth();
-const db   = firebase.firestore();
+// ━━ 환경 감지 ━━
+const IS_PREVIEW = (() => {
+  const h = window.location.hostname;
+  if (h.includes('netlify.app')) return false;
+  if (h.includes('firebaseapp.com')) return false;
+  return true; // localhost, 파일직접, Claude 미리보기 전부
+})();
 
-// ━━ 관리자 이메일 (최초 1인) ━━
-const ADMIN_EMAIL = 'a01040288521@gmail.com'; // ← 사장님 구글 계정으로 변경하세요
-
+const ADMIN_EMAIL = 'a01040288521@gmail.com';
 let currentUser = null;
+let auth = null, db = null;
 
-// ━━ 로그인/로그아웃 ━━
-function signIn() {
-  const provider = new firebase.auth.GoogleAuthProvider();
-  auth.signInWithPopup(provider).catch(e => alert('로그인 실패: ' + e.message));
-}
-function signOut() {
-  auth.signOut();
-}
+function signIn()  { if(auth) { const p=new firebase.auth.GoogleAuthProvider(); auth.signInWithPopup(p).catch(e=>alert('로그인 실패: '+e.message)); } }
+function signOut() { if(auth) auth.signOut(); }
 
-// ━━ 인증 상태 감지 ━━
-// 미리보기(로컬) 환경 감지
-const IS_PREVIEW = !window.location.hostname.includes('netlify.app') && 
-                   !window.location.hostname.includes('firebaseapp.com');
-
-if (IS_PREVIEW) {
-  // 미리보기에서는 Firebase 건너뛰고 샘플 데이터로 바로 실행
+function startApp() {
   document.getElementById('loading-screen').style.display = 'none';
   document.getElementById('main-app').style.display = 'block';
   document.getElementById('user-name').textContent = '미리보기 모드';
   settle = JSON.parse(JSON.stringify(defaultData));
   txns = [];
-  setTimeout(() => {
-    initMonSel();
-    renderAll();
-    document.getElementById('a-date').value = new Date().toISOString().split('T')[0];
-  }, 100);
-} else {
-  // 실제 사이트에서는 Firebase 인증
+  initMonSel();
+  renderAll();
+  document.getElementById('a-date').value = new Date().toISOString().split('T')[0];
+}
+
+function startFirebase() {
+  const firebaseConfig = {
+    apiKey: "AIzaSyBAXjufQXUgEXr8J8Y594gmqRvTDAT0fsc",
+    authDomain: "vivid-manager.firebaseapp.com",
+    projectId: "vivid-manager",
+    storageBucket: "vivid-manager.firebasestorage.app",
+    messagingSenderId: "307095487270",
+    appId: "1:307095487270:web:6344e7a13d920b01ab37e7"
+  };
+  firebase.initializeApp(firebaseConfig);
+  auth = firebase.auth();
+  db   = firebase.firestore();
+
   auth.onAuthStateChanged(async user => {
     document.getElementById('loading-screen').style.display = 'none';
     if (!user) {
       document.getElementById('login-screen').style.display = 'flex';
       document.getElementById('main-app').style.display = 'none';
-      document.getElementById('noaccess-screen').style.display = 'none';
       return;
     }
     const allowed = await checkAccess(user.email);
@@ -1035,12 +1024,14 @@ if (IS_PREVIEW) {
     document.getElementById('user-name').textContent = user.displayName || user.email;
     const photoEl = document.getElementById('user-photo');
     if (user.photoURL) { photoEl.src = user.photoURL; photoEl.style.display = 'block'; }
-    if (user.email === ADMIN_EMAIL || user.email.toLowerCase() === ADMIN_EMAIL.toLowerCase()) {
+    if (user.email.toLowerCase() === ADMIN_EMAIL.toLowerCase()) {
       document.getElementById('admin-btn').style.display = 'inline-block';
     }
     await loadFromFirestore();
   });
 }
+
+// 앱 시작: 스크립트 하단에서 실행
 
 async function checkAccess(email) {
   if (!email) return false;
@@ -1147,16 +1138,16 @@ let cSrc = null, cCost = null, cComp = null;
 const defaultData = {
   '2025-03': {
     mob: [
-      { k: 'sk_ps',  date: '2025-03-10', l: 'SK PS',       rev: 10819500, note: '' },
-      { k: 'kt_ms',  date: '2025-03-12', l: 'KT M&S',      rev: 4032400,  note: '' },
-      { k: 'lgu',    date: '2025-03-15', l: 'LGU+ DMB',    rev: 20992000, note: '' },
-      { k: 'lgu_ss', date: '',           l: 'LGU+ 신세계',  rev: 0,        note: '' },
+      { k: 'sk_ps',  date: '2025-03-10', l: 'SK PS',       rev: 10819500, note: '', link: '' },
+      { k: 'kt_ms',  date: '2025-03-12', l: 'KT M&S',      rev: 4032400,  note: '', link: '' },
+      { k: 'lgu',    date: '2025-03-15', l: 'LGU+ DMB',    rev: 20992000, note: '', link: '' },
+      { k: 'lgu_ss', date: '',           l: 'LGU+ 신세계',  rev: 0,        note: '', link: '' },
     ],
     hom: [
-      { k: 'h_sky', date: '2025-03-17', l: 'SKY',    rev: 2651000, note: '' },
-      { k: 'h_kt',  date: '2025-03-17', l: 'KT M&S', rev: 3760000, note: '' },
-      { k: 'h_sk',  date: '2025-03-17', l: 'SK PS',  rev: 1360000, note: '' },
-      { k: 'h_lg',  date: '2025-03-17', l: 'LG DMB', rev: 2312000, note: '' },
+      { k: 'h_sky', date: '2025-03-17', l: 'SKY',    rev: 2651000, note: '', link: '' },
+      { k: 'h_kt',  date: '2025-03-17', l: 'KT M&S', rev: 3760000, note: '', link: '' },
+      { k: 'h_sk',  date: '2025-03-17', l: 'SK PS',  rev: 1360000, note: '', link: '' },
+      { k: 'h_lg',  date: '2025-03-17', l: 'LG DMB', rev: 2312000, note: '', link: '' },
     ],
     used: [
       { k: 'u1', custName: 'LGU+ DMB', openDate: '', saleDate: '2025-03-15', amt: 7920000, saleCompany: '', payDate: '', note: '' },
@@ -1289,13 +1280,13 @@ function addMon() {
 }
 
 /* ══ 모바일 ══ */
-function addMobRow()  { settle[curMon].mob.push({ k:uid(), date:'', l:'새 매출처', rev:0, note:'' }); renderSettleInput(); save(); }
+function addMobRow()  { settle[curMon].mob.push({ k:uid(), date:'', l:'새 매출처', rev:0, note:'', link:'' }); renderSettleInput(); save(); }
 function delMobRow(k) { settle[curMon].mob = settle[curMon].mob.filter(r=>r.k!==k); renderSettleInput(); deferDash(); save(); }
-function setM(k,f,v)  { const r=settle[curMon].mob.find(x=>x.k===k); if(r) r[f]=(f==='l'||f==='date')?v:parseInput(v); updateRevFoot(); deferDash(); save(); }
+function setM(k,f,v)  { const r=settle[curMon].mob.find(x=>x.k===k); if(r) r[f]=(f==='l'||f==='date'||f==='note'||f==='link')?v:parseInput(v); updateRevFoot(); deferDash(); save(); }
 /* ══ 홈 ══ */
-function addHomRow()  { settle[curMon].hom.push({ k:uid(), date:'', l:'새 매출처', rev:0, note:'' }); renderSettleInput(); save(); }
+function addHomRow()  { settle[curMon].hom.push({ k:uid(), date:'', l:'새 매출처', rev:0, note:'', link:'' }); renderSettleInput(); save(); }
 function delHomRow(k) { settle[curMon].hom = settle[curMon].hom.filter(r=>r.k!==k); renderSettleInput(); deferDash(); save(); }
-function setH(k,f,v)  { const r=settle[curMon].hom.find(x=>x.k===k); if(r) r[f]=(f==='l'||f==='date')?v:parseInput(v); updateRevFoot(); deferDash(); save(); }
+function setH(k,f,v)  { const r=settle[curMon].hom.find(x=>x.k===k); if(r) r[f]=(f==='l'||f==='date'||f==='note'||f==='link')?v:parseInput(v); updateRevFoot(); deferDash(); save(); }
 /* ══ 중고폰 ══ */
 function addUsedRow()  { if(!settle[curMon].used) settle[curMon].used=[]; settle[curMon].used.push({ k:uid(), custName:'', openDate:'', saleDate:'', amt:0, saleCompany:'', payDate:'', note:'' }); renderSettleInput(); save(); }
 function delUsedRow(k) { settle[curMon].used = (settle[curMon].used||[]).filter(r=>r.k!==k); renderSettleInput(); deferDash(); save(); }
@@ -1348,6 +1339,12 @@ function renderSettleInput() {
     <td><input class="li" value="${s.l||''}" onchange="setM('${s.k}','l',this.value)" placeholder="매출처"></td>
     <td><input class="ni" type="text" inputmode="numeric" value="${s.rev?Number(s.rev).toLocaleString('ko-KR'):''}" oninput="fmtInput(this)" onchange="setM('${s.k}','rev',this.value)"></td>
     <td><input class="ni ni-l" type="text" value="${s.note||''}" onchange="setM('${s.k}','note',this.value)" placeholder="비고"></td>
+    <td style="text-align:center">
+      ${s.link
+        ? `<a href="${s.link}" target="_blank" style="font-size:11px;color:var(--blue);font-weight:600;text-decoration:none;background:var(--blue-bg);padding:3px 8px;border-radius:5px;white-space:nowrap">📎 열기</a>`
+        : `<input class="ni ni-l" type="text" value="" placeholder="드라이브 링크" style="font-size:11px" onchange="setM('${s.k}','link',this.value)">`
+      }
+    </td>
     <td><button class="xbtn" onclick="delMobRow('${s.k}')">×</button></td>
   </tr>`).join('');
 
@@ -1357,6 +1354,12 @@ function renderSettleInput() {
     <td><input class="li" value="${s.l||''}" onchange="setH('${s.k}','l',this.value)" placeholder="매출처"></td>
     <td><input class="ni" type="text" inputmode="numeric" value="${s.rev?Number(s.rev).toLocaleString('ko-KR'):''}" oninput="fmtInput(this)" onchange="setH('${s.k}','rev',this.value)"></td>
     <td><input class="ni ni-l" type="text" value="${s.note||''}" onchange="setH('${s.k}','note',this.value)" placeholder="비고"></td>
+    <td style="text-align:center">
+      ${s.link
+        ? `<a href="${s.link}" target="_blank" style="font-size:11px;color:var(--blue);font-weight:600;text-decoration:none;background:var(--blue-bg);padding:3px 8px;border-radius:5px;white-space:nowrap">📎 열기</a>`
+        : `<input class="ni ni-l" type="text" value="" placeholder="드라이브 링크" style="font-size:11px" onchange="setH('${s.k}','link',this.value)">`
+      }
+    </td>
     <td><button class="xbtn" onclick="delHomRow('${s.k}')">×</button></td>
   </tr>`).join('');
 
@@ -1485,7 +1488,7 @@ function simpleFoot(tblSel, sumEl, arr, field, color, colspan) {
 }
 function updateRevFoot() {
   const d = settle[curMon]; if(!d) return;
-  simpleFoot('#mob-tbl',  'mob-sum',  d.mob,  'rev', 'var(--green)', 2);
+  simpleFoot('#mob-tbl',  'mob-sum',  d.mob,  'rev', 'var(--green)', 2); /* 6col */
   simpleFoot('#hom-tbl',  'hom-sum',  d.hom,  'rev', 'var(--green)', 2);
   // 중고폰: 7컬럼 (고객명|개통일자|매각일자|매각금액|매각업체|대금일자|삭제) → 합계는 매각금액(4번째)
   const usedTot = (d.used||[]).reduce((a,s)=>a+(s.amt||0),0);
@@ -1804,6 +1807,25 @@ function renderAll() { renderDash(); renderSettleInput(); renderFlow(); renderCo
 
 /* ══ 시작 ══ */
 // 초기화는 Firebase 인증 후 loadFromFirestore()에서 자동 실행됩니다
+
+/* ━━ 앱 시작 ━━ */
+if (IS_PREVIEW) {
+  startApp();
+} else {
+  const _scripts = [
+    'https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js',
+    'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js',
+    'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js'
+  ];
+  let _loaded = 0;
+  _scripts.forEach(src => {
+    const s = document.createElement('script');
+    s.src = src;
+    s.onload = () => { if(++_loaded === _scripts.length) startFirebase(); };
+    s.onerror = () => startApp();
+    document.head.appendChild(s);
+  });
+}
 
 /* ━━ PWA Service Worker 등록 ━━ */
 if ('serviceWorker' in navigator) {
