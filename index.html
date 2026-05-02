@@ -879,8 +879,8 @@ tr:hover:not(.tot-row):not(.cat-row) td { background: #FAFBFD; }
   <div class="card">
     <div class="card-title">영업외비용</div>
     <table id="opx-tbl">
-      <colgroup><col style="width:160px"><col><col style="width:52px"><col style="width:116px"><col style="width:90px"><col style="width:26px"></colgroup>
-      <thead><tr><th>항목</th><th>비고</th><th>지급</th><th class="r">금액</th><th>일자</th><th></th></tr></thead>
+      <colgroup><col style="width:140px"><col><col style="width:52px"><col style="width:110px"><col style="width:85px"><col style="width:80px"><col style="width:26px"></colgroup>
+      <thead><tr><th>항목</th><th>비고</th><th>지급</th><th class="r">금액</th><th>일자</th><th>정산서</th><th></th></tr></thead>
       <tbody id="opx-body"></tbody>
       <tfoot id="opx-foot"></tfoot>
     </table>
@@ -1311,7 +1311,7 @@ function setOpxCatPay(k, v) { const o = settle[curMon].opx.find(x => x.k === k);
 function setOpxCatMemo(k, v) { const o = settle[curMon].opx.find(x => x.k === k); if (o) o.memo = v; save(); }
 function addSub(catK) {
   const o = settle[curMon].opx.find(x => x.k === catK);
-  if (o) { o.subs.push({ k: uid(), date: '', l: '세부 항목', p: o.p, amt: 0, note: '' }); o.open = true; }
+  if (o) { o.subs.push({ k: uid(), date: '', l: '세부 항목', p: o.p, amt: 0, note: '', link: '' }); o.open = true; }
   renderOpxTree(); save();
 }
 function delSub(catK, subK) {
@@ -1326,6 +1326,7 @@ function setSub(catK, subK, f, v) {
   const tot = catTotal(o);
   const el = document.getElementById('cat-tot-' + catK);
   if (el) { el.textContent = fmt(tot) + '원'; }
+  if (f === 'link') renderOpxTree();
   updateOpxFoot(); deferDash(); save();
 }
 
@@ -1467,12 +1468,21 @@ function renderOpxTree() {
           <td style="padding:5px 4px">
             <input class="di" type="date" value="${sub.date || ''}" onchange="setSub('${cat.k}','${sub.k}','date',this.value)" style="width:100%">
           </td>
+          <td style="padding:5px 4px;text-align:center">
+            ${sub.link
+              ? `<div style="display:flex;align-items:center;gap:4px">
+                  <a href="${sub.link}" target="_blank" style="font-size:11px;color:var(--blue);font-weight:600;text-decoration:none;background:var(--blue-bg);padding:3px 8px;border-radius:5px;white-space:nowrap">📎 열기</a>
+                  <button onclick="setSub('${cat.k}','${sub.k}','link','')" style="border:none;background:none;color:var(--text3);cursor:pointer;font-size:13px;padding:0 3px">×</button>
+                </div>`
+              : `<input class="ni ni-l" type="text" value="" placeholder="드라이브 링크" style="font-size:11px" onchange="setSub('${cat.k}','${sub.k}','link',this.value)">`
+            }
+          </td>
           <td style="padding:5px 4px"><button class="xbtn" onclick="delSub('${cat.k}','${sub.k}')">×</button></td>
         </tr>`;
       });
       // 세부항목 추가 버튼 (펼쳤을 때만)
       html += `<tr style="background:var(--bg)">
-        <td colspan="6" style="padding:4px 8px 6px 28px;border-bottom:1px solid var(--border)">
+        <td colspan="7" style="padding:4px 8px 6px 28px;border-bottom:1px solid var(--border)">
           <button onclick="addSub('${cat.k}')" style="font-size:12px;color:var(--text2);background:none;border:.5px dashed var(--border2);border-radius:6px;padding:4px 14px;cursor:pointer;font-family:inherit;transition:all .12s" onmouseover="this.style.background='var(--bg2)'" onmouseout="this.style.background='none'">
             ＋ 세부항목 추가
           </button>
@@ -1516,7 +1526,7 @@ function updateOpxFoot() {
   let t = 0; d.opx.forEach(o => { t += catTotal(o); });
   document.getElementById('opx-foot').innerHTML = `<tr class="tot-row">
     <td colspan="3" style="padding:7px 10px">합계</td>
-    <td class="r" style="padding:7px 10px;color:var(--red)">${fmt(t)}원</td><td></td><td></td></tr>`;
+    <td class="r" style="padding:7px 10px;color:var(--red)">${fmt(t)}원</td><td></td><td></td><td></td></tr>`;
 }
 
 /* ══ 대시보드 ══ */
