@@ -5,6 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>비비드컴퍼니 수익 관리</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -512,11 +516,73 @@ tr:hover:not(.tot-row):not(.cat-row) td { background: #FAFBFD; }
 </head>
 <body>
 
+
+<!-- ══ 로그인 화면 ══ -->
+<div id="login-screen" style="position:fixed;inset:0;z-index:9999;background:var(--bg);display:none;align-items:center;justify-content:center">
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:48px 40px;max-width:380px;width:90%;text-align:center;box-shadow:0 8px 32px rgba(24,32,46,.12)">
+    <div style="width:52px;height:52px;background:var(--blue);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:700;color:#fff;margin:0 auto 20px">V</div>
+    <h1 style="font-size:20px;font-weight:700;color:var(--text);margin-bottom:6px;letter-spacing:-.03em">비비드컴퍼니</h1>
+    <p style="font-size:13px;color:var(--text3);margin-bottom:32px">수익 관리 시스템</p>
+    <button onclick="signIn()" style="width:100%;padding:13px;border-radius:10px;border:1px solid var(--border);background:var(--surface);color:var(--text);font-size:14px;font-weight:600;font-family:inherit;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;transition:all .15s;box-shadow:var(--shadow-sm)" onmouseover="this.style.background='var(--bg)'" onmouseout="this.style.background='var(--surface)'">
+      <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
+      Google 계정으로 로그인
+    </button>
+    <p style="font-size:11px;color:var(--text3);margin-top:20px">허가된 계정만 접근할 수 있습니다</p>
+  </div>
+</div>
+
+<!-- ══ 권한없음 화면 ══ -->
+<div id="noaccess-screen" style="display:none;position:fixed;inset:0;z-index:9998;background:var(--bg);align-items:center;justify-content:center">
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:48px 40px;max-width:380px;width:90%;text-align:center;box-shadow:0 8px 32px rgba(24,32,46,.12)">
+    <div style="font-size:40px;margin-bottom:16px">🔒</div>
+    <h2 style="font-size:18px;font-weight:700;color:var(--text);margin-bottom:8px">접근 권한이 없습니다</h2>
+    <p id="noaccess-email" style="font-size:13px;color:var(--text3);margin-bottom:24px"></p>
+    <p style="font-size:12px;color:var(--text3);margin-bottom:24px">관리자에게 접근 권한을 요청하세요</p>
+    <button onclick="signOut()" style="padding:10px 24px;border-radius:8px;border:1px solid var(--border);background:var(--surface);color:var(--text2);font-size:13px;font-weight:600;font-family:inherit;cursor:pointer">로그아웃</button>
+  </div>
+</div>
+
+<!-- ══ 로딩 화면 ══ -->
+<div id="loading-screen" style="position:fixed;inset:0;z-index:10000;background:var(--bg);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:14px">
+  <div style="width:40px;height:40px;border:3px solid var(--border);border-top-color:var(--blue);border-radius:50%;animation:spin .8s linear infinite"></div>
+  <p style="font-size:13px;color:var(--text3)">불러오는 중...</p>
+</div>
+<style>
+@keyframes spin { to { transform:rotate(360deg); } }
+/* login/noaccess visibility controlled by JS */
+</style>
+
+<div id="main-app" style="display:none">
 <div class="header">
   <div class="logo"><div class="logo-icon">V</div>비비드컴퍼니</div>
   <select class="mon-sel" id="curMon" onchange="changeMon()"></select>
   <button class="btn" onclick="addMon()">+ 새 달</button>
   <span class="saved-badge" id="sv">✓ 저장됨</span>
+  <div style="margin-left:auto;display:flex;align-items:center;gap:10px">
+    <span id="user-info" style="font-size:12px;color:var(--text2);display:flex;align-items:center;gap:6px">
+      <img id="user-photo" src="" style="width:26px;height:26px;border-radius:50%;display:none" alt="">
+      <span id="user-name"></span>
+    </span>
+    <button onclick="openUserMgr()" id="admin-btn" style="display:none;font-size:11px;padding:5px 11px;border-radius:6px;border:1px solid var(--border);background:var(--surface);color:var(--text2);cursor:pointer;font-family:inherit;font-weight:600">⚙ 사용자 관리</button>
+    <button onclick="signOut()" style="font-size:11px;padding:5px 11px;border-radius:6px;border:1px solid var(--border);background:var(--surface);color:var(--text2);cursor:pointer;font-family:inherit;font-weight:600">로그아웃</button>
+  </div>
+</div>
+
+<!-- 사용자 관리 모달 -->
+<div id="user-mgr-modal" style="display:none;position:fixed;inset:0;z-index:5000;background:rgba(24,32,46,.4);align-items:center;justify-content:center">
+  <div style="background:var(--surface);border-radius:14px;padding:28px 28px 24px;max-width:440px;width:90%;box-shadow:0 12px 40px rgba(24,32,46,.18)">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+      <h3 style="font-size:15px;font-weight:700;color:var(--text)">사용자 접근 관리</h3>
+      <button onclick="closeUserMgr()" style="border:none;background:none;font-size:18px;cursor:pointer;color:var(--text3)">×</button>
+    </div>
+    <p style="font-size:12px;color:var(--text3);margin-bottom:14px">아래 이메일만 로그인 후 데이터에 접근할 수 있습니다</p>
+    <div id="user-list" style="margin-bottom:14px;max-height:200px;overflow-y:auto"></div>
+    <div style="display:flex;gap:8px">
+      <input type="email" id="new-email-input" placeholder="추가할 이메일 주소" style="flex:1;font-size:13px;padding:8px 11px;border:1px solid var(--border);border-radius:8px;background:var(--surface);color:var(--text);font-family:inherit;outline:none" onfocus="this.style.borderColor='var(--blue)'" onblur="this.style.borderColor='var(--border)'">
+      <button onclick="addEmail()" style="padding:8px 16px;border-radius:8px;border:none;background:var(--blue);color:#fff;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit">추가</button>
+    </div>
+    <p id="mgr-msg" style="font-size:12px;color:var(--green);margin-top:8px;height:16px"></p>
+  </div>
 </div>
 
 <div class="tabs">
@@ -714,10 +780,154 @@ tr:hover:not(.tot-row):not(.cat-row) td { background: #FAFBFD; }
 </div>
 
 </div><!-- /body -->
+</div><!-- /main-app -->
 
 <script>
 
-// Chart.js 다크 테마 전역 설정
+// ━━ Firebase 초기화 ━━
+const firebaseConfig = {
+  apiKey: "AIzaSyBAXjufQXUgEXr8J8Y594gmqRvTDAT0fsc",
+  authDomain: "vivid-manager.firebaseapp.com",
+  projectId: "vivid-manager",
+  storageBucket: "vivid-manager.firebasestorage.app",
+  messagingSenderId: "307095487270",
+  appId: "1:307095487270:web:6344e7a13d920b01ab37e7"
+};
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db   = firebase.firestore();
+
+// ━━ 관리자 이메일 (최초 1인) ━━
+const ADMIN_EMAIL = 'a01040288521@gmail.com'; // ← 사장님 구글 계정으로 변경하세요
+
+let currentUser = null;
+
+// ━━ 로그인/로그아웃 ━━
+function signIn() {
+  const provider = new firebase.auth.GoogleAuthProvider();
+  auth.signInWithPopup(provider).catch(e => alert('로그인 실패: ' + e.message));
+}
+function signOut() {
+  auth.signOut();
+}
+
+// ━━ 인증 상태 감지 ━━
+auth.onAuthStateChanged(async user => {
+  document.getElementById('loading-screen').style.display = 'none';
+  if (!user) {
+    document.getElementById('login-screen').style.display = 'flex';
+    document.getElementById('main-app').style.display = 'none';
+    document.getElementById('noaccess-screen').style.display = 'none';
+    return;
+  }
+  // 권한 체크
+  const allowed = await checkAccess(user.email);
+  if (!allowed) {
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('noaccess-screen').style.display = 'flex';
+    document.getElementById('main-app').style.display = 'none';
+    document.getElementById('noaccess-email').textContent = user.email + ' 계정으로는 접근할 수 없습니다';
+    return;
+  }
+  // 정상 접근
+  currentUser = user;
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('noaccess-screen').style.display = 'none';
+  document.getElementById('main-app').style.display = 'block';
+  // 헤더 사용자 정보
+  document.getElementById('user-name').textContent = user.displayName || user.email;
+  const photoEl = document.getElementById('user-photo');
+  if (user.photoURL) { photoEl.src = user.photoURL; photoEl.style.display = 'block'; }
+  if (user.email === ADMIN_EMAIL || user.email.toLowerCase() === ADMIN_EMAIL.toLowerCase()) {
+    document.getElementById('admin-btn').style.display = 'inline-block';
+  }
+  // 데이터 로드 후 앱 시작
+  await loadFromFirestore();
+});
+
+async function checkAccess(email) {
+  if (!email) return false;
+  if (email.toLowerCase() === ADMIN_EMAIL.toLowerCase()) return true;
+  try {
+    const doc = await db.collection('config').doc('allowedUsers').get();
+    if (!doc.exists) return false;
+    const emails = (doc.data().emails || []).map(e => e.toLowerCase());
+    return emails.includes(email.toLowerCase());
+  } catch(e) { return false; }
+}
+
+// ━━ 사용자 관리 모달 ━━
+async function openUserMgr() {
+  document.getElementById('user-mgr-modal').style.display = 'flex';
+  await renderUserList();
+}
+function closeUserMgr() {
+  document.getElementById('user-mgr-modal').style.display = 'none';
+}
+async function renderUserList() {
+  const ul = document.getElementById('user-list');
+  try {
+    const doc = await db.collection('config').doc('allowedUsers').get();
+    const emails = doc.exists ? (doc.data().emails || []) : [];
+    if (!emails.length) { ul.innerHTML = '<p style="font-size:12px;color:var(--text3);padding:8px 0">등록된 사용자가 없습니다</p>'; return; }
+    ul.innerHTML = emails.map(e => `
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 10px;background:var(--bg);border-radius:7px;margin-bottom:6px">
+        <span style="font-size:13px;color:var(--text)">${e}</span>
+        <button onclick="removeEmail('${e}')" style="border:none;background:none;color:var(--red);cursor:pointer;font-size:12px;font-weight:600;padding:2px 6px">삭제</button>
+      </div>`).join('');
+  } catch(e) { ul.innerHTML = '<p style="font-size:12px;color:var(--red)">불러오기 실패</p>'; }
+}
+async function addEmail() {
+  const input = document.getElementById('new-email-input');
+  const email = input.value.trim().toLowerCase();
+  if (!email || !email.includes('@')) { showMgrMsg('올바른 이메일을 입력해주세요', 'var(--red)'); return; }
+  try {
+    const ref = db.collection('config').doc('allowedUsers');
+    const doc = await ref.get();
+    const emails = doc.exists ? (doc.data().emails || []) : [];
+    if (emails.includes(email)) { showMgrMsg('이미 등록된 이메일입니다', 'var(--amber)'); return; }
+    await ref.set({ emails: [...emails, email] }, { merge: true });
+    input.value = '';
+    showMgrMsg('✓ 추가되었습니다', 'var(--green)');
+    await renderUserList();
+  } catch(e) { showMgrMsg('오류: ' + e.message, 'var(--red)'); }
+}
+async function removeEmail(email) {
+  if (!confirm(email + ' 을 삭제할까요?')) return;
+  try {
+    const ref = db.collection('config').doc('allowedUsers');
+    const doc = await ref.get();
+    const emails = (doc.data().emails || []).filter(e => e !== email);
+    await ref.set({ emails }, { merge: true });
+    showMgrMsg('✓ 삭제되었습니다', 'var(--green)');
+    await renderUserList();
+  } catch(e) { showMgrMsg('오류: ' + e.message, 'var(--red)'); }
+}
+function showMgrMsg(msg, color) {
+  const el = document.getElementById('mgr-msg');
+  el.textContent = msg; el.style.color = color;
+  setTimeout(() => { el.textContent = ''; }, 2500);
+}
+
+// ━━ Firestore 데이터 로드/저장 ━━
+async function loadFromFirestore() {
+  try {
+    const [sDoc, tDoc] = await Promise.all([
+      db.collection('data').doc('settle').get(),
+      db.collection('data').doc('txns').get()
+    ]);
+    settle = sDoc.exists ? sDoc.data().value : JSON.parse(JSON.stringify(defaultData));
+    txns   = tDoc.exists ? tDoc.data().value : [];
+  } catch(e) {
+    settle = JSON.parse(JSON.stringify(defaultData));
+    txns   = [];
+  }
+  initMonSel();
+  renderAll();
+  document.getElementById('a-date').value = new Date().toISOString().split('T')[0];
+}
+
+// Chart.js 전역 설정
 Chart.defaults.color = '#9BA3BA';
 Chart.defaults.borderColor = '#E4E8F0';
 Chart.defaults.font.family = "'Noto Sans KR', sans-serif";
@@ -726,7 +936,6 @@ Chart.defaults.font.weight = "500";
 const uid = () => Math.random().toString(36).slice(2, 8);
 const fmt = n => Number(n || 0).toLocaleString('ko-KR');
 
-/* 숫자 입력 → 천 단위 콤마 */
 function fmtInput(el) {
   const raw = el.value.replace(/[^0-9]/g, '');
   el.value = raw ? Number(raw).toLocaleString('ko-KR') : '';
@@ -809,30 +1018,22 @@ const defaultData = {
 
 const defaultTxns = [];
 
-/* ══ 로컬스토리지 로드/저장 ══ */
-function loadData() {
-  try {
-    const s = localStorage.getItem('vivid_settle');
-    const t = localStorage.getItem('vivid_txns');
-    return {
-      settle: s ? JSON.parse(s) : JSON.parse(JSON.stringify(defaultData)),
-      txns:   t ? JSON.parse(t) : JSON.parse(JSON.stringify(defaultTxns))
-    };
-  } catch (e) {
-    return {
-      settle: JSON.parse(JSON.stringify(defaultData)),
-      txns:   JSON.parse(JSON.stringify(defaultTxns))
-    };
-  }
-}
-let { settle, txns } = loadData();
+/* ══ 데이터 (Firestore) ══ */
+let settle = JSON.parse(JSON.stringify(defaultData));
+let txns   = [];
 
+let saveTimer = null;
 function save() {
-  try {
-    localStorage.setItem('vivid_settle', JSON.stringify(settle));
-    localStorage.setItem('vivid_txns',   JSON.stringify(txns));
-    showSaved();
-  } catch (e) {}
+  showSaved();
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(async () => {
+    try {
+      await Promise.all([
+        db.collection('data').doc('settle').set({ value: settle }),
+        db.collection('data').doc('txns').set({ value: txns })
+      ]);
+    } catch(e) { console.error('저장 실패:', e); }
+  }, 800);
 }
 function showSaved() {
   const e = document.getElementById('sv');
@@ -1397,9 +1598,7 @@ function goTab(id) {
 function renderAll() { renderDash(); renderSettleInput(); renderFlow(); renderComp(); }
 
 /* ══ 시작 ══ */
-document.getElementById('a-date').value = new Date().toISOString().split('T')[0];
-initMonSel();
-renderAll();
+// 초기화는 Firebase 인증 후 loadFromFirestore()에서 자동 실행됩니다
 </script>
 </body>
 </html>
