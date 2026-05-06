@@ -729,6 +729,7 @@ tr:hover:not(.tot-row):not(.cat-row) td { background: #FAFBFD; }
   <div class="logo"><div class="logo-icon">V</div>비비드컴퍼니</div>
   <select class="mon-sel" id="curMon" onchange="changeMon()"></select>
   <button class="btn" onclick="editMon()" title="현재 월 이름 변경" style="padding:6px 10px">✏️</button>
+  <button class="btn" onclick="deleteMon()" title="현재 월 삭제" style="padding:6px 10px;color:var(--red);border-color:var(--red)">🗑️</button>
   <button class="btn" onclick="addMon()">+ 새 달</button>
   <span class="saved-badge" id="sv">✓ 저장됨</span>
   <div style="margin-left:auto;display:flex;align-items:center;gap:10px">
@@ -741,6 +742,22 @@ tr:hover:not(.tot-row):not(.cat-row) td { background: #FAFBFD; }
   </div>
 </div>
 
+
+
+<!-- 월 삭제 모달 -->
+<div id="delete-mon-modal" style="display:none;position:fixed;inset:0;z-index:5000;background:rgba(24,32,46,.4);align-items:center;justify-content:center">
+  <div style="background:var(--surface);border-radius:14px;padding:28px;max-width:360px;width:90%;box-shadow:0 12px 40px rgba(24,32,46,.18)">
+    <div style="text-align:center;margin-bottom:20px">
+      <div style="font-size:40px;margin-bottom:12px">🗑️</div>
+      <h3 style="font-size:15px;font-weight:700;color:var(--text);margin-bottom:8px"><span id="delete-mon-label"></span> 를 삭제할까요?</h3>
+      <p style="font-size:12px;color:var(--red)">해당 월의 모든 데이터가 영구 삭제됩니다!</p>
+    </div>
+    <div style="display:flex;gap:8px;justify-content:center">
+      <button onclick="document.getElementById('delete-mon-modal').style.display='none'" style="padding:9px 24px;border-radius:8px;border:1px solid var(--border);background:var(--surface);color:var(--text2);font-size:13px;font-weight:600;cursor:pointer;font-family:inherit">취소</button>
+      <button onclick="confirmDeleteMon()" style="padding:9px 24px;border-radius:8px;border:none;background:var(--red);color:#fff;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit">삭제</button>
+    </div>
+  </div>
+</div>
 
 <!-- 월 편집 모달 -->
 <div id="edit-mon-modal" style="display:none;position:fixed;inset:0;z-index:5000;background:rgba(24,32,46,.4);align-items:center;justify-content:center">
@@ -1271,6 +1288,29 @@ function getMonths() { return Object.keys(settle).sort(); }
 
 /* ══ 월 셀렉터 ══ */
 /* ━━ 월 이름 편집 ━━ */
+function deleteMon() {
+  const months = Object.keys(settle).sort();
+  if (months.length <= 1) {
+    alert('마지막 남은 달은 삭제할 수 없어요!');
+    return;
+  }
+  const modal = document.getElementById('delete-mon-modal');
+  document.getElementById('delete-mon-label').textContent = curMon;
+  modal.style.display = 'flex';
+}
+function confirmDeleteMon() {
+  const cur = curMon;
+  const months = Object.keys(settle).sort();
+  delete settle[cur];
+  txns = txns.filter(t => t.mon !== cur);
+  const remaining = Object.keys(settle).sort();
+  curMon = remaining[remaining.length - 1];
+  save();
+  initMonSel();
+  renderAll();
+  document.getElementById('delete-mon-modal').style.display = 'none';
+}
+
 function editMon() {
   const modal = document.getElementById('edit-mon-modal');
   const input = document.getElementById('edit-mon-input');
