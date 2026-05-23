@@ -672,6 +672,23 @@ tr:hover:not(.tot-row):not(.cat-row) td { background: #FAFBFD; }
 /* 저장됨 뱃지 애니메이션 */
 .saved-badge { transition: opacity .3s, transform .3s; transform: translateY(2px); }
 .saved-badge.on { transform: translateY(0); }
+
+/* 비고 인라인 입력 */
+.note-input {
+  width: 100%;
+  font-size: 12px;
+  padding: 4px 6px;
+  border: none;
+  border-bottom: 1px solid transparent;
+  border-radius: 0;
+  background: transparent;
+  color: var(--text2);
+  font-family: inherit;
+  transition: border-color .15s;
+}
+.note-input:hover { border-bottom-color: var(--border); }
+.note-input:focus { outline: none; border-bottom-color: var(--blue); color: var(--text); }
+.note-input::placeholder { color: var(--text3); font-size: 11px; }
 </style>
 </head>
 <body>
@@ -1418,14 +1435,7 @@ function delOpxCat(k) { settle[curMon].opx = settle[curMon].opx.filter(o => o.k 
 function toggleCat(k) { const o = settle[curMon].opx.find(x => x.k === k); if (o) o.open = !o.open; renderOpxTree(); }
 function setOpxCatLabel(k, v) { const o = settle[curMon].opx.find(x => x.k === k); if (o) o.l = v; save(); }
 function setOpxCatPay(k, v) { const o = settle[curMon].opx.find(x => x.k === k); if (o) o.p = v; save(); }
-function setOpxCatMemo(k, v) {
-  const o = settle[curMon].opx.find(x => x.k === k); if (!o) return;
-  if (v === '__edit__') { o.__editMemo = true; renderOpxTree(); return; }
-  o.memo = v;
-  delete o.__editMemo;
-  if (v === '') renderOpxTree();
-  save();
-}
+function setOpxCatMemo(k, v) { const o = settle[curMon].opx.find(x => x.k === k); if (o) { o.memo = v; save(); } }
 function addSub(catK) {
   const o = settle[curMon].opx.find(x => x.k === catK);
   if (o) { o.subs.push({ k: uid(), date: '', l: '세부 항목', p: o.p, amt: 0, note: '', link: '' }); o.open = true; }
@@ -1456,19 +1466,7 @@ function renderSettleInput() {
     <td><input class="di" type="date" value="${s.date||''}" onchange="setM('${s.k}','date',this.value)"></td>
     <td><input class="li" value="${s.l||''}" onchange="setM('${s.k}','l',this.value)" placeholder="매출처"></td>
     <td><input class="ni" type="text" inputmode="numeric" value="${s.rev?Number(s.rev).toLocaleString('ko-KR'):''}" oninput="fmtInput(this)" onchange="setM('${s.k}','rev',this.value)"></td>
-    <td>
-      ${(s.__editNote || false)
-        ? `<input class="ni ni-l" type="text" value="${s.note||''}" placeholder="비고 입력" autofocus
-            onchange="setM('${s.k}','note',this.value)"
-            onblur="delete settle[curMon].mob.find(x=>x.k==='${s.k}').__editNote; renderSettleInput()">`
-        : s.note
-          ? `<div style="display:flex;align-items:center;gap:4px">
-              <span style="font-size:12px;color:var(--text2);flex:1;cursor:pointer" onclick="setM('${s.k}','note','__edit__')">${s.note}</span>
-              <button onclick="setM('${s.k}','note','')" style="border:none;background:none;color:var(--text3);cursor:pointer;font-size:12px;padding:0">×</button>
-            </div>`
-          : `<button onclick="setM('${s.k}','note','__edit__')" style="border:none;background:none;color:var(--text3);cursor:pointer;font-size:18px;padding:2px 6px;border-radius:4px" onmouseover="this.style.background='var(--bg)'" onmouseout="this.style.background='none'" title="비고 입력">✎</button>`
-      }
-    </td>
+    <td><input class="note-input" type="text" value="${s.note||''}" placeholder="비고" onchange="setM('${s.k}','note',this.value)"></td>
     <td style="text-align:center">
       ${s.link
         ? `<div style="display:flex;align-items:center;gap:4px">
@@ -1486,19 +1484,7 @@ function renderSettleInput() {
     <td><input class="di" type="date" value="${s.date||''}" onchange="setH('${s.k}','date',this.value)"></td>
     <td><input class="li" value="${s.l||''}" onchange="setH('${s.k}','l',this.value)" placeholder="매출처"></td>
     <td><input class="ni" type="text" inputmode="numeric" value="${s.rev?Number(s.rev).toLocaleString('ko-KR'):''}" oninput="fmtInput(this)" onchange="setH('${s.k}','rev',this.value)"></td>
-    <td>
-      ${(s.__editNote || false)
-        ? `<input class="ni ni-l" type="text" value="${s.note||''}" placeholder="비고 입력" autofocus
-            onchange="setH('${s.k}','note',this.value)"
-            onblur="delete settle[curMon].hom.find(x=>x.k==='${s.k}').__editNote; renderSettleInput()">`
-        : s.note
-          ? `<div style="display:flex;align-items:center;gap:4px">
-              <span style="font-size:12px;color:var(--text2);flex:1;cursor:pointer" onclick="setH('${s.k}','note','__edit__')">${s.note}</span>
-              <button onclick="setH('${s.k}','note','')" style="border:none;background:none;color:var(--text3);cursor:pointer;font-size:12px;padding:0">×</button>
-            </div>`
-          : `<button onclick="setH('${s.k}','note','__edit__')" style="border:none;background:none;color:var(--text3);cursor:pointer;font-size:18px;padding:2px 6px;border-radius:4px" onmouseover="this.style.background='var(--bg)'" onmouseout="this.style.background='none'" title="비고 입력">✎</button>`
-      }
-    </td>
+    <td><input class="note-input" type="text" value="${s.note||''}" placeholder="비고" onchange="setH('${s.k}','note',this.value)"></td>
     <td style="text-align:center">
       ${s.link
         ? `<div style="display:flex;align-items:center;gap:4px">
@@ -1519,15 +1505,7 @@ function renderSettleInput() {
     <td><input class="ni" type="text" inputmode="numeric" value="${s.amt?Number(s.amt).toLocaleString('ko-KR'):''}" oninput="fmtInput(this)" onchange="setU('${s.k}','amt',this.value)"></td>
     <td><input class="li" value="${s.saleCompany||''}" onchange="setU('${s.k}','saleCompany',this.value)" placeholder="매각업체"></td>
     <td><input class="di" type="date" value="${s.payDate||''}" onchange="setU('${s.k}','payDate',this.value)"></td>
-    <td>
-      ${s.note
-        ? `<div style="display:flex;align-items:center;gap:4px">
-            <span style="font-size:12px;color:var(--text2);flex:1;cursor:pointer" onclick="setU('${s.k}','note','__edit__')">${s.note}</span>
-            <button onclick="setU('${s.k}','note','')" style="border:none;background:none;color:var(--text3);cursor:pointer;font-size:12px;padding:0">×</button>
-          </div>`
-        : `<button onclick="setU('${s.k}','note','__edit__')" style="border:none;background:none;color:var(--text3);cursor:pointer;font-size:18px;padding:2px 6px;border-radius:4px" onmouseover="this.style.background='var(--bg)'" onmouseout="this.style.background='none'" title="특이사항 입력">✎</button>`
-      }
-    </td>
+    <td><input class="note-input" type="text" value="${s.note||''}" placeholder="특이사항" onchange="setU('${s.k}','note',this.value)"></td>
     <td><button class="xbtn" onclick="delUsedRow('${s.k}')">×</button></td>
   </tr>`).join('');
 
@@ -1537,15 +1515,7 @@ function renderSettleInput() {
     <td><input class="di" type="date" value="${s.openDate||''}" onchange="setCard('${s.k}','openDate',this.value)"></td>
     <td><input class="ni" type="text" inputmode="numeric" value="${s.amt?Number(s.amt).toLocaleString('ko-KR'):''}" oninput="fmtInput(this)" onchange="setCard('${s.k}','amt',this.value)"></td>
     <td><input class="di" type="date" value="${s.processDate||''}" onchange="setCard('${s.k}','processDate',this.value)"></td>
-    <td>
-      ${s.note
-        ? `<div style="display:flex;align-items:center;gap:4px">
-            <span style="font-size:12px;color:var(--text2);flex:1;cursor:pointer" onclick="setCard('${s.k}','note','__edit__')">${s.note}</span>
-            <button onclick="setCard('${s.k}','note','')" style="border:none;background:none;color:var(--text3);cursor:pointer;font-size:12px;padding:0">×</button>
-          </div>`
-        : `<button onclick="setCard('${s.k}','note','__edit__')" style="border:none;background:none;color:var(--text3);cursor:pointer;font-size:18px;padding:2px 6px;border-radius:4px" onmouseover="this.style.background='var(--bg)'" onmouseout="this.style.background='none'" title="특이사항 입력">✎</button>`
-      }
-    </td>
+    <td><input class="note-input" type="text" value="${s.note||''}" placeholder="특이사항" onchange="setCard('${s.k}','note',this.value)"></td>
     <td><button class="xbtn" onclick="delCardRow('${s.k}')">×</button></td>
   </tr>`).join('');
 
@@ -1555,15 +1525,7 @@ function renderSettleInput() {
     <td><input class="di" type="date" value="${s.openDate||''}" onchange="setCash('${s.k}','openDate',this.value)"></td>
     <td><input class="ni" type="text" inputmode="numeric" value="${s.amt?Number(s.amt).toLocaleString('ko-KR'):''}" oninput="fmtInput(this)" onchange="setCash('${s.k}','amt',this.value)"></td>
     <td><input class="di" type="date" value="${s.processDate||''}" onchange="setCash('${s.k}','processDate',this.value)"></td>
-    <td>
-      ${s.note
-        ? `<div style="display:flex;align-items:center;gap:4px">
-            <span style="font-size:12px;color:var(--text2);flex:1;cursor:pointer" onclick="setCash('${s.k}','note','__edit__')">${s.note}</span>
-            <button onclick="setCash('${s.k}','note','')" style="border:none;background:none;color:var(--text3);cursor:pointer;font-size:12px;padding:0">×</button>
-          </div>`
-        : `<button onclick="setCash('${s.k}','note','__edit__')" style="border:none;background:none;color:var(--text3);cursor:pointer;font-size:18px;padding:2px 6px;border-radius:4px" onmouseover="this.style.background='var(--bg)'" onmouseout="this.style.background='none'" title="특이사항 입력">✎</button>`
-      }
-    </td>
+    <td><input class="note-input" type="text" value="${s.note||''}" placeholder="특이사항" onchange="setCash('${s.k}','note',this.value)"></td>
     <td><button class="xbtn" onclick="delCashRow('${s.k}')">×</button></td>
   </tr>`).join('');
 
@@ -1594,17 +1556,7 @@ function renderOpxTree() {
         </div>
       </td>
       <td style="padding:5px 6px">
-        ${(cat.__editMemo || false)
-          ? `<input class="ni ni-l" type="text" value="${cat.memo||''}" placeholder="메모 입력" style="font-size:12px" autofocus
-              onchange="setOpxCatMemo('${cat.k}',this.value)"
-              onblur="const o=settle[curMon].opx.find(x=>x.k==='${cat.k}'); if(o){delete o.__editMemo;} renderOpxTree()">`
-          : cat.memo
-            ? `<div style="display:flex;align-items:center;gap:4px">
-                <span style="font-size:12px;color:var(--text2);flex:1;cursor:pointer" onclick="setOpxCatMemo('${cat.k}','__edit__')">${cat.memo}</span>
-                <button onclick="setOpxCatMemo('${cat.k}','')" style="border:none;background:none;color:var(--text3);cursor:pointer;font-size:12px;padding:0">×</button>
-              </div>`
-            : `<button onclick="setOpxCatMemo('${cat.k}','__edit__')" style="border:none;background:none;color:var(--text3);cursor:pointer;font-size:18px;padding:2px 6px;border-radius:4px" onmouseover="this.style.background='var(--bg)'" onmouseout="this.style.background='none'" title="메모 입력">✎</button>`
-        }
+        <input class="note-input" type="text" value="${cat.memo||''}" placeholder="메모" onchange="setOpxCatMemo('${cat.k}',this.value)">
       </td>
       <td style="padding:5px 4px">
         <select class="ps" onchange="setOpxCatPay('${cat.k}',this.value)">
@@ -1629,13 +1581,7 @@ function renderOpxTree() {
             </div>
           </td>
           <td style="padding:5px 4px">
-            ${sub.note
-              ? `<div style="display:flex;align-items:center;gap:4px">
-                  <span style="font-size:12px;color:var(--text2);flex:1;cursor:pointer" onclick="this.parentNode.parentNode.innerHTML='<input class=\'ni ni-l\' type=\'text\' value=\''+encodeURIComponent(sub.note).replace(/%20/g,' ')+'\' style=\'width:100%\' onchange=\'setSub(\'${cat.k}\',\'${sub.k}\',\'note\',this.value)\' onblur=\'renderOpxTree()\'>' " title="클릭하여 수정">${sub.note}</span>
-                  <button onclick="setSub('${cat.k}','${sub.k}','note','');renderOpxTree()" style="border:none;background:none;color:var(--text3);cursor:pointer;font-size:12px;padding:0 2px" title="삭제">×</button>
-                </div>`
-              : `<button onclick="this.parentNode.innerHTML='<input class=\'ni ni-l\' type=\'text\' placeholder=\'특이사항 입력\' style=\'width:100%\' onchange=\'setSub(\'${cat.k}\',\'${sub.k}\',\'note\',this.value)\' onblur=\'renderOpxTree()\'>'; this.parentNode.querySelector(\'input\').focus()" style="border:none;background:none;color:var(--text3);cursor:pointer;font-size:11px;padding:3px 6px;border-radius:4px;transition:background .15s" onmouseover="this.style.background='var(--bg)'" onmouseout="this.style.background='none'" title="특이사항 입력">📝</button>`
-            }
+            <input class="note-input" type="text" value="${sub.note||''}" placeholder="특이사항" onchange="setSub('${cat.k}','${sub.k}','note',this.value)">
           </td>
           <td style="padding:5px 4px;text-align:center">
             <select class="ps" onchange="setSub('${cat.k}','${sub.k}','p',this.value)">
