@@ -628,6 +628,9 @@ tr:hover:not(.tot-row):not(.cat-row) td { background: #FAFBFD; }
 
 
 
+
+/* 지급 선택 정렬 고정 */
+.ps { min-width: 56px !important; width: 56px !important; text-align: center; }
 </style>
 </head>
 <body>
@@ -873,8 +876,8 @@ tr:hover:not(.tot-row):not(.cat-row) td { background: #FAFBFD; }
   <div class="card">
     <div class="card-title">영업외비용</div>
     <table id="opx-tbl">
-      <colgroup><col style="width:140px"><col style="width:100px"><col style="width:52px"><col style="width:110px"><col style="width:85px"><col style="width:80px"><col style="width:26px"></colgroup>
-      <thead><tr><th>항목</th><th>비고</th><th>지급</th><th class="r">금액</th><th>일자</th><th>정산서</th><th></th></tr></thead>
+      <colgroup><col style="width:140px"><col style="width:60px"><col style="width:120px"><col style="width:88px"><col style="width:70px"><col style="width:70px"><col style="width:26px"></colgroup>
+      <thead><tr><th>항목</th><th>지급</th><th class="r">금액</th><th>일자</th><th>비고</th><th>정산서</th><th></th></tr></thead>
       <tbody id="opx-body"></tbody>
       <tfoot id="opx-foot"></tfoot>
     </table>
@@ -1496,9 +1499,6 @@ function renderOpxTree() {
           ${!isOpen && subCnt > 0 ? `<span style="font-size:10px;color:var(--text3);background:var(--bg2);padding:2px 7px;border-radius:99px;white-space:nowrap;flex-shrink:0">${subCnt}건</span>` : ''}
         </div>
       </td>
-      <td style="padding:5px 6px">
-        <input class="note-input" type="text" value="${cat.memo||''}" placeholder="" onchange="setOpxCatMemo('${cat.k}',this.value)">
-      </td>
       <td style="padding:5px 4px">
         <select class="ps" onchange="setOpxCatPay('${cat.k}',this.value)">
           <option ${cat.p === '이체' ? 'selected' : ''}>이체</option>
@@ -1506,6 +1506,10 @@ function renderOpxTree() {
         </select>
       </td>
       <td id="cat-tot-${cat.k}" class="cat-total">${fmt(tot)}원</td>
+      <td></td>
+      <td style="padding:5px 6px">
+        <input class="note-input" type="text" value="${cat.memo||''}" placeholder="" onchange="setOpxCatMemo('${cat.k}',this.value)">
+      </td>
       <td></td>
       <td><button class="xbtn" onclick="delOpxCat('${cat.k}')">×</button></td>
     </tr>`;
@@ -1521,9 +1525,6 @@ function renderOpxTree() {
               <input class="li-sub" style="flex:1;min-width:60px" value="${sub.l}" onchange="setSub('${cat.k}','${sub.k}','l',this.value)">
             </div>
           </td>
-          <td style="padding:5px 4px">
-            <input class="note-input" type="text" value="${sub.note||''}" placeholder="" onchange="setSub('${cat.k}','${sub.k}','note',this.value)">
-          </td>
           <td style="padding:5px 4px;text-align:center">
             <select class="ps" onchange="setSub('${cat.k}','${sub.k}','p',this.value)">
               <option ${sub.p === '이체' ? 'selected' : ''}>이체</option>
@@ -1535,6 +1536,9 @@ function renderOpxTree() {
           </td>
           <td style="padding:5px 4px">
             <input class="di" type="date" value="${sub.date || ''}" onchange="setSub('${cat.k}','${sub.k}','date',this.value)" style="width:100%">
+          </td>
+          <td style="padding:5px 4px">
+            <input class="note-input" type="text" value="${sub.note||''}" placeholder="" onchange="setSub('${cat.k}','${sub.k}','note',this.value)">
           </td>
           <td style="padding:5px 4px;text-align:center">
             ${sub.link
