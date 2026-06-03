@@ -697,32 +697,46 @@ tr:hover:not(.tot-row):not(.cat-row) td { background: #FAFBFD; }
 
 /* ━━ 모바일 테이블 최적화 ━━ */
 @media (max-width: 600px) {
-  /* 테이블 min-width 제거 */
-  table { min-width: unset !important; }
+  table { min-width: unset !important; width: 100% !important; }
   .card { overflow-x: unset !important; }
-
-  /* 모바일에서 숨길 컬럼 */
-  /* 비고 컬럼 숨기기 */
   .hide-mobile { display: none !important; }
-
-  /* 날짜 컬럼 축소 */
-  .di { font-size: 10px !important; padding: 4px 4px !important; }
-
-  /* 금액 입력 축소 */
-  .ni { font-size: 12px !important; padding: 4px 6px !important; }
-
-  /* 매출처 텍스트 축소 */
+  td, th { padding: 7px 5px !important; }
+  th { font-size: 9px !important; }
+  .di { font-size: 11px !important; padding: 4px 3px !important; min-width: 0 !important; }
+  .ni { font-size: 12px !important; padding: 5px 5px !important; }
   .li { font-size: 12px !important; }
-
-  /* 정산서 버튼 축소 */
-  .link-cell a { font-size: 10px !important; padding: 2px 5px !important; }
-
-  /* td 패딩 축소 */
-  td { padding: 6px 4px !important; }
-  th { padding: 6px 4px !important; font-size: 9px !important; }
-
-  /* 헤더 버튼 크기 축소 */
   .btn-excel { font-size: 10px !important; padding: 3px 8px !important; }
+
+  /* 모바일 매출: 날짜(1) 매출처(2) 금액(3) 비고(4)숨김 정산서(5)숨김 삭제(6) */
+  #mob-tbl th:nth-child(1), #mob-tbl td:nth-child(1) { width: 90px !important; }
+  #mob-tbl th:nth-child(4), #mob-tbl td:nth-child(4),
+  #mob-tbl th:nth-child(5), #mob-tbl td:nth-child(5) { display: none !important; }
+
+  /* 홈 매출 동일 */
+  #hom-tbl th:nth-child(1), #hom-tbl td:nth-child(1) { width: 90px !important; }
+  #hom-tbl th:nth-child(4), #hom-tbl td:nth-child(4),
+  #hom-tbl th:nth-child(5), #hom-tbl td:nth-child(5) { display: none !important; }
+
+  /* 중고폰: 고객명(1) 개통일(2)숨김 매각일(3)숨김 금액(4) 매각업체(5)숨김 대금일(6)숨김 비고(7)숨김 삭제(8) */
+  #used-tbl th:nth-child(2), #used-tbl td:nth-child(2),
+  #used-tbl th:nth-child(3), #used-tbl td:nth-child(3),
+  #used-tbl th:nth-child(5), #used-tbl td:nth-child(5),
+  #used-tbl th:nth-child(6), #used-tbl td:nth-child(6),
+  #used-tbl th:nth-child(7), #used-tbl td:nth-child(7) { display: none !important; }
+
+  /* 카드지원: 고객명(1) 개통일(2)숨김 금액(3) 처리일(4)숨김 비고(5)숨김 삭제(6) */
+  #card-tbl th:nth-child(2), #card-tbl td:nth-child(2),
+  #card-tbl th:nth-child(4), #card-tbl td:nth-child(4),
+  #card-tbl th:nth-child(5), #card-tbl td:nth-child(5) { display: none !important; }
+
+  /* 현금지원 동일 */
+  #cash-tbl th:nth-child(2), #cash-tbl td:nth-child(2),
+  #cash-tbl th:nth-child(4), #cash-tbl td:nth-child(4),
+  #cash-tbl th:nth-child(5), #cash-tbl td:nth-child(5) { display: none !important; }
+
+  /* 영업외비용: 항목(1) 비고(2) 지급(3) 금액(4) 일자(5)숨김 정산서(6)숨김 삭제(7) */
+  #opx-tbl th:nth-child(5), #opx-tbl td:nth-child(5),
+  #opx-tbl th:nth-child(6), #opx-tbl td:nth-child(6) { display: none !important; }
 }
 
 /* ━━ 모바일 대시보드 최적화 ━━ */
@@ -943,7 +957,7 @@ tr:hover:not(.tot-row):not(.cat-row) td { background: #FAFBFD; }
     </div>
     <table id="mob-tbl">
       <colgroup><col style="width:88px"><col style="width:120px"><col style="width:120px"><col><col style="width:80px"><col style="width:26px"></colgroup>
-      <thead><tr><th>날짜</th><th>매출처</th><th class="r">매출금액</th><th class="hide-mobile">비고</th><th>정산서</th><th></th></tr></thead>
+      <thead><tr><th>날짜</th><th>매출처</th><th class="r">매출금액</th><th >비고</th><th>정산서</th><th></th></tr></thead>
       <tbody></tbody><tfoot></tfoot>
     </table>
     <button class="btn-add-row" onclick="addMobRow()">+ 매출처 추가</button>
@@ -956,7 +970,7 @@ tr:hover:not(.tot-row):not(.cat-row) td { background: #FAFBFD; }
     </div>
     <table id="hom-tbl">
       <colgroup><col style="width:88px"><col style="width:120px"><col style="width:120px"><col><col style="width:80px"><col style="width:26px"></colgroup>
-      <thead><tr><th>날짜</th><th>매출처</th><th class="r">매출금액</th><th class="hide-mobile">비고</th><th>정산서</th><th></th></tr></thead>
+      <thead><tr><th>날짜</th><th>매출처</th><th class="r">매출금액</th><th >비고</th><th>정산서</th><th></th></tr></thead>
       <tbody></tbody><tfoot></tfoot>
     </table>
     <button class="btn-add-row" onclick="addHomRow()">+ 매출처 추가</button>
@@ -1538,7 +1552,7 @@ function renderSettleInput() {
     <td><input class="di" type="date" value="${s.date||''}" onchange="setM('${s.k}','date',this.value)"></td>
     <td><input class="li" value="${s.l||''}" onchange="setM('${s.k}','l',this.value)" placeholder="매출처"></td>
     <td><input class="ni" type="text" inputmode="numeric" value="${s.rev?Number(s.rev).toLocaleString('ko-KR'):''}" oninput="fmtInput(this)" onchange="setM('${s.k}','rev',this.value)"></td>
-    <td class="hide-mobile"><input class="note-input" type="text" value="${s.note||''}" placeholder="" onchange="setM('${s.k}','note',this.value)"></td>
+    <td><input class="note-input" type="text" value="${s.note||''}" placeholder="" onchange="setM('${s.k}','note',this.value)"></td>
     <td style="text-align:center">
       ${s.link
         ? `<div style="display:flex;align-items:center;gap:4px">
@@ -1556,7 +1570,7 @@ function renderSettleInput() {
     <td><input class="di" type="date" value="${s.date||''}" onchange="setH('${s.k}','date',this.value)"></td>
     <td><input class="li" value="${s.l||''}" onchange="setH('${s.k}','l',this.value)" placeholder="매출처"></td>
     <td><input class="ni" type="text" inputmode="numeric" value="${s.rev?Number(s.rev).toLocaleString('ko-KR'):''}" oninput="fmtInput(this)" onchange="setH('${s.k}','rev',this.value)"></td>
-    <td class="hide-mobile"><input class="note-input" type="text" value="${s.note||''}" placeholder="" onchange="setH('${s.k}','note',this.value)"></td>
+    <td><input class="note-input" type="text" value="${s.note||''}" placeholder="" onchange="setH('${s.k}','note',this.value)"></td>
     <td style="text-align:center">
       ${s.link
         ? `<div style="display:flex;align-items:center;gap:4px">
@@ -1577,7 +1591,7 @@ function renderSettleInput() {
     <td><input class="ni" type="text" inputmode="numeric" value="${s.amt?Number(s.amt).toLocaleString('ko-KR'):''}" oninput="fmtInput(this)" onchange="setU('${s.k}','amt',this.value)"></td>
     <td><input class="li" value="${s.saleCompany||''}" onchange="setU('${s.k}','saleCompany',this.value)" placeholder="매각업체"></td>
     <td><input class="di" type="date" value="${s.payDate||''}" onchange="setU('${s.k}','payDate',this.value)"></td>
-    <td class="hide-mobile"><input class="note-input" type="text" value="${s.note||''}" placeholder="" onchange="setU('${s.k}','note',this.value)"></td>
+    <td><input class="note-input" type="text" value="${s.note||''}" placeholder="" onchange="setU('${s.k}','note',this.value)"></td>
     <td><button class="xbtn" onclick="delUsedRow('${s.k}')">×</button></td>
   </tr>`).join('');
 
@@ -1587,7 +1601,7 @@ function renderSettleInput() {
     <td><input class="di" type="date" value="${s.openDate||''}" onchange="setCard('${s.k}','openDate',this.value)"></td>
     <td><input class="ni" type="text" inputmode="numeric" value="${s.amt?Number(s.amt).toLocaleString('ko-KR'):''}" oninput="fmtInput(this)" onchange="setCard('${s.k}','amt',this.value)"></td>
     <td><input class="di" type="date" value="${s.processDate||''}" onchange="setCard('${s.k}','processDate',this.value)"></td>
-    <td class="hide-mobile"><input class="note-input" type="text" value="${s.note||''}" placeholder="" onchange="setCard('${s.k}','note',this.value)"></td>
+    <td><input class="note-input" type="text" value="${s.note||''}" placeholder="" onchange="setCard('${s.k}','note',this.value)"></td>
     <td><button class="xbtn" onclick="delCardRow('${s.k}')">×</button></td>
   </tr>`).join('');
 
@@ -1597,7 +1611,7 @@ function renderSettleInput() {
     <td><input class="di" type="date" value="${s.openDate||''}" onchange="setCash('${s.k}','openDate',this.value)"></td>
     <td><input class="ni" type="text" inputmode="numeric" value="${s.amt?Number(s.amt).toLocaleString('ko-KR'):''}" oninput="fmtInput(this)" onchange="setCash('${s.k}','amt',this.value)"></td>
     <td><input class="di" type="date" value="${s.processDate||''}" onchange="setCash('${s.k}','processDate',this.value)"></td>
-    <td class="hide-mobile"><input class="note-input" type="text" value="${s.note||''}" placeholder="" onchange="setCash('${s.k}','note',this.value)"></td>
+    <td><input class="note-input" type="text" value="${s.note||''}" placeholder="" onchange="setCash('${s.k}','note',this.value)"></td>
     <td><button class="xbtn" onclick="delCashRow('${s.k}')">×</button></td>
   </tr>`).join('');
 
