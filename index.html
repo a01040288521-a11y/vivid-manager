@@ -628,27 +628,6 @@ tr:hover:not(.tot-row):not(.cat-row) td { background: #FAFBFD; }
 
 
 
-
-/* ━━ 터치 스크롤 최적화 ━━ */
-html {
-  -webkit-overflow-scrolling: touch;
-  touch-action: pan-x pan-y pinch-zoom;
-  scroll-behavior: auto;
-}
-body {
-  -webkit-overflow-scrolling: touch;
-  touch-action: pan-x pan-y pinch-zoom;
-  overscroll-behavior: none;
-}
-.body, .card, .sec {
-  -webkit-overflow-scrolling: touch;
-  touch-action: pan-x pan-y pinch-zoom;
-}
-/* 애니메이션 비활성화 (스크롤 멈춤 원인 제거) */
-@media (max-width: 900px) {
-  * { animation: none !important; transition: none !important; }
-  .mc, .card, .btn, .tab, .btn-excel, .tl-btn { transform: none !important; }
-}
 </style>
 </head>
 <body>
