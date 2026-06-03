@@ -48,6 +48,7 @@
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { overflow-x: hidden; max-width: 100%; }
 html { scroll-behavior: smooth; }
 body {
   font-family: 'Noto Sans KR', sans-serif;
@@ -775,6 +776,30 @@ tr:hover:not(.tot-row):not(.cat-row) td { background: #FAFBFD; }
   /* body 패딩 */
   .body { padding: 12px !important; padding-bottom: calc(72px + env(safe-area-inset-bottom)) !important; }
 }
+
+@media (max-width: 600px) {
+  /* 헤더 압축 */
+  .header { padding: 0 10px !important; gap: 6px !important; height: 48px !important; overflow: hidden; }
+  .logo { font-size: 12px !important; gap: 5px !important; }
+  .logo-icon { width: 22px !important; height: 22px !important; font-size: 11px !important; border-radius: 6px !important; }
+  .mon-sel { font-size: 11px !important; padding: 4px 6px !important; }
+  .btn { padding: 4px 7px !important; font-size: 10px !important; }
+
+  /* 헤더 우측 사용자 정보 숨기기 */
+  #user-info { display: none !important; }
+  #admin-btn { font-size: 10px !important; padding: 4px 6px !important; }
+  /* 로그아웃 버튼 아이콘만 */
+  .logout-btn span { display: none !important; }
+
+  /* 탭 최적화 */
+  .tabs { padding: 0 !important; }
+  .tab { font-size: 9px !important; padding: 8px 2px 6px !important; }
+
+  /* 영업외비용 항목 컬럼 너비 */
+  #opx-tbl th:nth-child(2), #opx-tbl td:nth-child(2) { display: none !important; }
+  #opx-tbl th:nth-child(5), #opx-tbl td:nth-child(5) { display: none !important; }
+  #opx-tbl th:nth-child(6), #opx-tbl td:nth-child(6) { display: none !important; }
+}
 </style>
 </head>
 <body>
@@ -841,7 +866,7 @@ tr:hover:not(.tot-row):not(.cat-row) td { background: #FAFBFD; }
       <span id="user-name"></span>
     </span>
     <button onclick="openUserMgr()" id="admin-btn" style="display:none;font-size:11px;padding:5px 11px;border-radius:6px;border:1px solid var(--border);background:var(--surface);color:var(--text2);cursor:pointer;font-family:inherit;font-weight:600">⚙ 사용자 관리</button>
-    <button onclick="signOut()" style="font-size:11px;padding:5px 11px;border-radius:6px;border:1px solid var(--border);background:var(--surface);color:var(--text2);cursor:pointer;font-family:inherit;font-weight:600">로그아웃</button>
+    <button onclick="signOut()" class="logout-btn" style="font-size:11px;padding:5px 11px;border-radius:6px;border:1px solid var(--border);background:var(--surface);color:var(--text2);cursor:pointer;font-family:inherit;font-weight:600"><span>로그아웃</span></button>
   </div>
 </div>
 
