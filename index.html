@@ -694,6 +694,73 @@ tr:hover:not(.tot-row):not(.cat-row) td { background: #FAFBFD; }
 .ps { transition: all .15s; }
 .ps.pay-card { background: #EEF3FF; color: #2563EB; border-color: #2563EB; font-weight: 600; }
 .ps.pay-cash { background: #F0FDF4; color: #059669; border-color: #059669; font-weight: 600; }
+
+/* ━━ 모바일 테이블 최적화 ━━ */
+@media (max-width: 600px) {
+  /* 테이블 min-width 제거 */
+  table { min-width: unset !important; }
+  .card { overflow-x: unset !important; }
+
+  /* 모바일에서 숨길 컬럼 */
+  /* 비고 컬럼 숨기기 */
+  .hide-mobile { display: none !important; }
+
+  /* 날짜 컬럼 축소 */
+  .di { font-size: 10px !important; padding: 4px 4px !important; }
+
+  /* 금액 입력 축소 */
+  .ni { font-size: 12px !important; padding: 4px 6px !important; }
+
+  /* 매출처 텍스트 축소 */
+  .li { font-size: 12px !important; }
+
+  /* 정산서 버튼 축소 */
+  .link-cell a { font-size: 10px !important; padding: 2px 5px !important; }
+
+  /* td 패딩 축소 */
+  td { padding: 6px 4px !important; }
+  th { padding: 6px 4px !important; font-size: 9px !important; }
+
+  /* 헤더 버튼 크기 축소 */
+  .btn-excel { font-size: 10px !important; padding: 3px 8px !important; }
+}
+
+/* ━━ 모바일 대시보드 최적화 ━━ */
+@media (max-width: 600px) {
+  /* 지표 카드 2열 */
+  .metrics { grid-template-columns: repeat(2,1fr) !important; gap: 8px !important; }
+  .mc { padding: 12px 12px 10px !important; }
+  .mc-val { font-size: 14px !important; }
+  .mc-lbl { font-size: 9px !important; margin-bottom: 6px !important; }
+  .mc-sub { font-size: 9px !important; }
+  .mc-icon { font-size: 13px !important; top: 10px; right: 10px; }
+
+  /* 당월순이익 카드 2열에서 전체너비 */
+  .mc:last-child { grid-column: span 2; }
+
+  /* 차트 1열 */
+  .chart-grid { grid-template-columns: 1fr !important; gap: 10px !important; }
+  .cw { height: 160px !important; }
+
+  /* 수익흐름 요약 폰트 축소 */
+  .flow-summary td { padding: 6px 8px !important; font-size: 12px !important; }
+  .flow-summary tr.big td { font-size: 13px !important; }
+
+  /* 현금흐름 타임라인 */
+  #tl-summary { font-size: 10px !important; gap: 8px !important; flex-wrap: wrap; }
+  #timeline-tbl td { font-size: 11px !important; padding: 6px 6px !important; }
+  #timeline-tbl th { font-size: 9px !important; padding: 6px 6px !important; }
+
+  /* 타임라인 필터 버튼 */
+  .tl-btn { font-size: 10px !important; padding: 3px 9px !important; }
+
+  /* 카드 패딩 축소 */
+  .card { padding: 14px 14px !important; }
+  .card-title { font-size: 10px !important; margin-bottom: 10px !important; }
+
+  /* body 패딩 */
+  .body { padding: 12px !important; padding-bottom: calc(72px + env(safe-area-inset-bottom)) !important; }
+}
 </style>
 </head>
 <body>
@@ -876,7 +943,7 @@ tr:hover:not(.tot-row):not(.cat-row) td { background: #FAFBFD; }
     </div>
     <table id="mob-tbl">
       <colgroup><col style="width:88px"><col style="width:120px"><col style="width:120px"><col><col style="width:80px"><col style="width:26px"></colgroup>
-      <thead><tr><th>날짜</th><th>매출처</th><th class="r">매출금액</th><th>비고</th><th>정산서</th><th></th></tr></thead>
+      <thead><tr><th>날짜</th><th>매출처</th><th class="r">매출금액</th><th class="hide-mobile">비고</th><th>정산서</th><th></th></tr></thead>
       <tbody></tbody><tfoot></tfoot>
     </table>
     <button class="btn-add-row" onclick="addMobRow()">+ 매출처 추가</button>
@@ -889,7 +956,7 @@ tr:hover:not(.tot-row):not(.cat-row) td { background: #FAFBFD; }
     </div>
     <table id="hom-tbl">
       <colgroup><col style="width:88px"><col style="width:120px"><col style="width:120px"><col><col style="width:80px"><col style="width:26px"></colgroup>
-      <thead><tr><th>날짜</th><th>매출처</th><th class="r">매출금액</th><th>비고</th><th>정산서</th><th></th></tr></thead>
+      <thead><tr><th>날짜</th><th>매출처</th><th class="r">매출금액</th><th class="hide-mobile">비고</th><th>정산서</th><th></th></tr></thead>
       <tbody></tbody><tfoot></tfoot>
     </table>
     <button class="btn-add-row" onclick="addHomRow()">+ 매출처 추가</button>
@@ -1471,7 +1538,7 @@ function renderSettleInput() {
     <td><input class="di" type="date" value="${s.date||''}" onchange="setM('${s.k}','date',this.value)"></td>
     <td><input class="li" value="${s.l||''}" onchange="setM('${s.k}','l',this.value)" placeholder="매출처"></td>
     <td><input class="ni" type="text" inputmode="numeric" value="${s.rev?Number(s.rev).toLocaleString('ko-KR'):''}" oninput="fmtInput(this)" onchange="setM('${s.k}','rev',this.value)"></td>
-    <td><input class="note-input" type="text" value="${s.note||''}" placeholder="" onchange="setM('${s.k}','note',this.value)"></td>
+    <td class="hide-mobile"><input class="note-input" type="text" value="${s.note||''}" placeholder="" onchange="setM('${s.k}','note',this.value)"></td>
     <td style="text-align:center">
       ${s.link
         ? `<div style="display:flex;align-items:center;gap:4px">
@@ -1489,7 +1556,7 @@ function renderSettleInput() {
     <td><input class="di" type="date" value="${s.date||''}" onchange="setH('${s.k}','date',this.value)"></td>
     <td><input class="li" value="${s.l||''}" onchange="setH('${s.k}','l',this.value)" placeholder="매출처"></td>
     <td><input class="ni" type="text" inputmode="numeric" value="${s.rev?Number(s.rev).toLocaleString('ko-KR'):''}" oninput="fmtInput(this)" onchange="setH('${s.k}','rev',this.value)"></td>
-    <td><input class="note-input" type="text" value="${s.note||''}" placeholder="" onchange="setH('${s.k}','note',this.value)"></td>
+    <td class="hide-mobile"><input class="note-input" type="text" value="${s.note||''}" placeholder="" onchange="setH('${s.k}','note',this.value)"></td>
     <td style="text-align:center">
       ${s.link
         ? `<div style="display:flex;align-items:center;gap:4px">
@@ -1510,7 +1577,7 @@ function renderSettleInput() {
     <td><input class="ni" type="text" inputmode="numeric" value="${s.amt?Number(s.amt).toLocaleString('ko-KR'):''}" oninput="fmtInput(this)" onchange="setU('${s.k}','amt',this.value)"></td>
     <td><input class="li" value="${s.saleCompany||''}" onchange="setU('${s.k}','saleCompany',this.value)" placeholder="매각업체"></td>
     <td><input class="di" type="date" value="${s.payDate||''}" onchange="setU('${s.k}','payDate',this.value)"></td>
-    <td><input class="note-input" type="text" value="${s.note||''}" placeholder="" onchange="setU('${s.k}','note',this.value)"></td>
+    <td class="hide-mobile"><input class="note-input" type="text" value="${s.note||''}" placeholder="" onchange="setU('${s.k}','note',this.value)"></td>
     <td><button class="xbtn" onclick="delUsedRow('${s.k}')">×</button></td>
   </tr>`).join('');
 
@@ -1520,7 +1587,7 @@ function renderSettleInput() {
     <td><input class="di" type="date" value="${s.openDate||''}" onchange="setCard('${s.k}','openDate',this.value)"></td>
     <td><input class="ni" type="text" inputmode="numeric" value="${s.amt?Number(s.amt).toLocaleString('ko-KR'):''}" oninput="fmtInput(this)" onchange="setCard('${s.k}','amt',this.value)"></td>
     <td><input class="di" type="date" value="${s.processDate||''}" onchange="setCard('${s.k}','processDate',this.value)"></td>
-    <td><input class="note-input" type="text" value="${s.note||''}" placeholder="" onchange="setCard('${s.k}','note',this.value)"></td>
+    <td class="hide-mobile"><input class="note-input" type="text" value="${s.note||''}" placeholder="" onchange="setCard('${s.k}','note',this.value)"></td>
     <td><button class="xbtn" onclick="delCardRow('${s.k}')">×</button></td>
   </tr>`).join('');
 
@@ -1530,7 +1597,7 @@ function renderSettleInput() {
     <td><input class="di" type="date" value="${s.openDate||''}" onchange="setCash('${s.k}','openDate',this.value)"></td>
     <td><input class="ni" type="text" inputmode="numeric" value="${s.amt?Number(s.amt).toLocaleString('ko-KR'):''}" oninput="fmtInput(this)" onchange="setCash('${s.k}','amt',this.value)"></td>
     <td><input class="di" type="date" value="${s.processDate||''}" onchange="setCash('${s.k}','processDate',this.value)"></td>
-    <td><input class="note-input" type="text" value="${s.note||''}" placeholder="" onchange="setCash('${s.k}','note',this.value)"></td>
+    <td class="hide-mobile"><input class="note-input" type="text" value="${s.note||''}" placeholder="" onchange="setCash('${s.k}','note',this.value)"></td>
     <td><button class="xbtn" onclick="delCashRow('${s.k}')">×</button></td>
   </tr>`).join('');
 
