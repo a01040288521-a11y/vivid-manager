@@ -636,6 +636,26 @@ tr:hover:not(.tot-row):not(.cat-row) td { background: #FAFBFD; }
 #opx-tbl th { text-align: center !important; }
 #opx-tbl th:first-child { text-align: left !important; }
 /* opx col widths from colgroup */
+
+/* 비고 칸 구분 배경 */
+#opx-tbl td:nth-child(5) .note-input,
+#mob-tbl td:nth-child(4) .note-input,
+#hom-tbl td:nth-child(4) .note-input {
+  background: #F8F9FC !important;
+  border: 1px solid var(--border) !important;
+  border-radius: var(--radius-xs) !important;
+  padding: 5px 7px !important;
+}
+#opx-tbl td:nth-child(5) .note-input:focus,
+#mob-tbl td:nth-child(4) .note-input:focus,
+#hom-tbl td:nth-child(4) .note-input:focus {
+  border-color: var(--blue) !important;
+  background: #fff !important;
+}
+
+#opx-tbl td:first-child, #opx-tbl th:first-child { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+#opx-tbl .cat-total { white-space: nowrap !important; }
+.tot-row td { white-space: nowrap !important; }
 </style>
 </head>
 <body>
@@ -881,7 +901,7 @@ tr:hover:not(.tot-row):not(.cat-row) td { background: #FAFBFD; }
   <div class="card">
     <div class="card-title">영업외비용</div>
     <table id="opx-tbl" style="table-layout:fixed">
-      <colgroup><col style="width:22%"><col style="width:9%"><col style="width:18%"><col style="width:13%"><col style="width:13%"><col style="width:13%"><col style="width:32px"></colgroup>
+      <colgroup><col style="width:20%"><col style="width:8%"><col style="width:20%"><col style="width:12%"><col style="width:20%"><col style="width:8%"><col style="width:26px"></colgroup>
       <thead><tr><th>항목</th><th>지급</th><th class="r">금액</th><th>일자</th><th>비고</th><th>정산서</th><th></th></tr></thead>
       <tbody id="opx-body"></tbody>
       <tfoot id="opx-foot"></tfoot>
@@ -1603,8 +1623,8 @@ function updateOpxFoot() {
   const d = settle[curMon]; if (!d) return;
   let t = 0; d.opx.forEach(o => { t += catTotal(o); });
   document.getElementById('opx-foot').innerHTML = `<tr class="tot-row">
-    <td colspan="3" style="padding:7px 10px">합계</td>
-    <td class="r" style="padding:7px 10px;color:var(--red)">${fmt(t)}원</td><td></td><td></td><td></td></tr>`;
+    <td colspan="2" style="padding:7px 10px">합계</td>
+    <td class="r" style="padding:7px 10px;color:var(--red);white-space:nowrap">${fmt(t)}원</td><td></td><td></td><td></td><td></td></tr>`;
 }
 
 /* ══ 대시보드 ══ */
