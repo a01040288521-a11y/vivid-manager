@@ -631,6 +631,11 @@ tr:hover:not(.tot-row):not(.cat-row) td { background: #FAFBFD; }
 
 /* 지급 선택 정렬 고정 */
 .ps { min-width: 56px !important; width: 56px !important; text-align: center; }
+
+#opx-tbl { table-layout: fixed !important; }
+#opx-tbl th { text-align: center !important; }
+#opx-tbl th:first-child { text-align: left !important; }
+/* opx col widths from colgroup */
 </style>
 </head>
 <body>
@@ -875,8 +880,8 @@ tr:hover:not(.tot-row):not(.cat-row) td { background: #FAFBFD; }
   </div>
   <div class="card">
     <div class="card-title">영업외비용</div>
-    <table id="opx-tbl">
-      <colgroup><col style="width:140px"><col style="width:60px"><col style="width:120px"><col style="width:88px"><col style="width:70px"><col style="width:70px"><col style="width:26px"></colgroup>
+    <table id="opx-tbl" style="table-layout:fixed">
+      <colgroup><col style="width:22%"><col style="width:9%"><col style="width:18%"><col style="width:13%"><col style="width:13%"><col style="width:13%"><col style="width:32px"></colgroup>
       <thead><tr><th>항목</th><th>지급</th><th class="r">금액</th><th>일자</th><th>비고</th><th>정산서</th><th></th></tr></thead>
       <tbody id="opx-body"></tbody>
       <tfoot id="opx-foot"></tfoot>
@@ -1499,7 +1504,7 @@ function renderOpxTree() {
           ${!isOpen && subCnt > 0 ? `<span style="font-size:10px;color:var(--text3);background:var(--bg2);padding:2px 7px;border-radius:99px;white-space:nowrap;flex-shrink:0">${subCnt}건</span>` : ''}
         </div>
       </td>
-      <td style="padding:5px 4px">
+      <td style="padding:5px 4px;text-align:center">
         <select class="ps" onchange="setOpxCatPay('${cat.k}',this.value)">
           <option ${cat.p === '이체' ? 'selected' : ''}>이체</option>
           <option ${cat.p === '카드' ? 'selected' : ''}>카드</option>
