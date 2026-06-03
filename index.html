@@ -885,6 +885,84 @@ tr:hover:not(.tot-row):not(.cat-row) td { background: #FAFBFD; }
 <style>
 @keyframes spin { to { transform:rotate(360deg); } }
 /* login/noaccess visibility controlled by JS */
+
+/* ━━ 모바일 전체 최적화 ━━ */
+@media (max-width: 640px) {
+
+  /* 헤더 우측 완전 숨김 */
+  #header-right { display: none !important; }
+
+  /* 헤더 */
+  .header { padding: 0 10px !important; gap: 6px !important; height: 48px !important; }
+  .logo { font-size: 12px !important; }
+  .logo-icon { width: 22px !important; height: 22px !important; font-size: 11px !important; }
+  .mon-sel { font-size: 11px !important; padding: 4px 6px !important; }
+  .btn { padding: 4px 7px !important; font-size: 10px !important; }
+
+  /* 탭 */
+  .tabs { padding: 0 !important; }
+  .tab { font-size: 9px !important; padding: 8px 2px 6px !important; }
+
+  /* 본문 */
+  .body { padding: 10px !important; padding-bottom: calc(70px + env(safe-area-inset-bottom)) !important; }
+  .card { padding: 12px !important; margin-bottom: 10px !important; }
+
+  /* 대시보드 카드 2열 */
+  .metrics { grid-template-columns: repeat(2,1fr) !important; gap: 8px !important; }
+  .mc { padding: 11px !important; }
+  .mc:last-child { grid-column: span 2; }
+  .mc-val { font-size: 14px !important; }
+  .mc-lbl { font-size: 9px !important; }
+  .mc-sub { font-size: 9px !important; }
+  .mc-icon { display: none !important; }
+
+  /* 차트 1열 */
+  .chart-grid { grid-template-columns: 1fr !important; }
+  .cw { height: 160px !important; }
+
+  /* 테이블 공통 */
+  table { min-width: unset !important; width: 100% !important; }
+  .card { overflow-x: hidden !important; }
+  td, th { padding: 6px 4px !important; font-size: 11px !important; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  th { font-size: 9px !important; }
+  .di { font-size: 11px !important; padding: 3px !important; }
+  .ni { font-size: 11px !important; padding: 4px !important; }
+  .li { font-size: 11px !important; }
+  .ps { font-size: 10px !important; padding: 3px 4px !important; }
+  .btn-excel { font-size: 10px !important; padding: 3px 8px !important; }
+
+  /* 모바일 매출: 날짜·매출처·금액만 (비고·정산서 숨김) */
+  #mob-tbl th:nth-child(4), #mob-tbl td:nth-child(4),
+  #mob-tbl th:nth-child(5), #mob-tbl td:nth-child(5),
+  #mob-tbl th:nth-child(6), #mob-tbl td:nth-child(6) { display: none !important; }
+
+  #hom-tbl th:nth-child(4), #hom-tbl td:nth-child(4),
+  #hom-tbl th:nth-child(5), #hom-tbl td:nth-child(5),
+  #hom-tbl th:nth-child(6), #hom-tbl td:nth-child(6) { display: none !important; }
+
+  /* 중고폰: 고객명·금액만 */
+  #used-tbl th:nth-child(2), #used-tbl td:nth-child(2),
+  #used-tbl th:nth-child(3), #used-tbl td:nth-child(3),
+  #used-tbl th:nth-child(5), #used-tbl td:nth-child(5),
+  #used-tbl th:nth-child(6), #used-tbl td:nth-child(6),
+  #used-tbl th:nth-child(7), #used-tbl td:nth-child(7),
+  #used-tbl th:nth-child(8), #used-tbl td:nth-child(8) { display: none !important; }
+
+  /* 카드·현금지원: 고객명·금액만 */
+  #card-tbl th:nth-child(2), #card-tbl td:nth-child(2),
+  #card-tbl th:nth-child(4), #card-tbl td:nth-child(4),
+  #card-tbl th:nth-child(5), #card-tbl td:nth-child(5),
+  #card-tbl th:nth-child(6), #card-tbl td:nth-child(6) { display: none !important; }
+  #cash-tbl th:nth-child(2), #cash-tbl td:nth-child(2),
+  #cash-tbl th:nth-child(4), #cash-tbl td:nth-child(4),
+  #cash-tbl th:nth-child(5), #cash-tbl td:nth-child(5),
+  #cash-tbl th:nth-child(6), #cash-tbl td:nth-child(6) { display: none !important; }
+
+  /* 영업외비용: 항목·지급·금액만 */
+  #opx-tbl th:nth-child(2), #opx-tbl td:nth-child(2),
+  #opx-tbl th:nth-child(5), #opx-tbl td:nth-child(5),
+  #opx-tbl th:nth-child(6), #opx-tbl td:nth-child(6) { display: none !important; }
+}
 </style>
 
 
@@ -907,7 +985,7 @@ tr:hover:not(.tot-row):not(.cat-row) td { background: #FAFBFD; }
   <button class="btn" onclick="deleteMon()" title="현재 월 삭제" style="padding:6px 10px;color:var(--red);border-color:var(--red)">🗑️</button>
   <button class="btn" onclick="addMon()">+ 새 달</button>
   <span class="saved-badge" id="sv">✓ 저장됨</span>
-  <div style="margin-left:auto;display:flex;align-items:center;gap:10px">
+  <div id="header-right" style="margin-left:auto;display:flex;align-items:center;gap:10px">
     <span id="user-info" style="font-size:12px;color:var(--text2);display:flex;align-items:center;gap:6px">
       <img id="user-photo" src="" style="width:26px;height:26px;border-radius:50%;display:none" alt="">
       <span id="user-name"></span>
