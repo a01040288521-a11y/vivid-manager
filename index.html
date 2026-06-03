@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="viewport" content="width=1280">
 <title>비비드컴퍼니 수익 관리</title>
 <meta name="description" content="비비드컴퍼니 수익 관리 시스템">
 <meta name="theme-color" content="#2563EB">
@@ -490,20 +490,9 @@ tr:hover:not(.tot-row):not(.cat-row) td { background: #FAFBFD; }
 .amt-neu { color: var(--text);  font-family: 'Outfit', 'Noto Sans KR', sans-serif; }
 
 /* ━━ 반응형 ━━ */
-@media (max-width: 1024px) {
-  .metrics { grid-template-columns: repeat(3,1fr); }
-}
-@media (max-width: 768px) {
-  .metrics { grid-template-columns: repeat(2,1fr); }
-  .chart-grid { grid-template-columns: 1fr; }
-  .body { padding: 14px 16px; }
-  .header, .tabs { padding-left: 16px; padding-right: 16px; }
-  .tab { padding: 11px 12px; font-size: 12px; }
-}
-@media (max-width: 480px) {
-  .g2, .g3 { grid-template-columns: 1fr; }
-  .metrics { grid-template-columns: 1fr 1fr; }
-}
+
+
+
 
 /* ━━ 타임라인 필터 버튼 ━━ */
 .tl-btn {
@@ -584,69 +573,7 @@ tr:hover:not(.tot-row):not(.cat-row) td { background: #FAFBFD; }
 .btn-excel:active { transform: scale(.96); }
 .tl-btn:active { transform: scale(.95); }
 
-/* 모바일 최적화 */
-@media (max-width: 768px) {
-  /* 하단 네비게이션 */
-  .tabs {
-    position: fixed;
-    bottom: 0; left: 0; right: 0;
-    top: auto;
-    border-top: 1px solid var(--border);
-    border-bottom: none;
-    padding: 0;
-    background: var(--surface);
-    z-index: 150;
-    box-shadow: 0 -4px 20px rgba(24,32,46,.08);
-    justify-content: space-around;
-    padding-bottom: env(safe-area-inset-bottom);
-  }
-  .tab {
-    flex: 1;
-    padding: 10px 4px 8px;
-    font-size: 10px;
-    border-bottom: none;
-    border-top: 2px solid transparent;
-    margin-bottom: 0;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 3px;
-  }
-  .tab.active {
-    border-top-color: var(--blue);
-    border-bottom: none;
-    color: var(--blue);
-  }
-  .tab::before {
-    font-size: 18px;
-    line-height: 1;
-  }
-  .tab:nth-child(1)::before { content: '📊'; }
-  .tab:nth-child(2)::before { content: '✏️'; }
-  .tab:nth-child(3)::before { content: '💰'; }
-  .tab:nth-child(4)::before { content: '📈'; }
 
-  /* 본문 하단 패딩 (탭바 높이만큼) */
-  .body { padding-bottom: calc(68px + env(safe-area-inset-bottom)); padding-top: 12px; }
-
-  /* 헤더 */
-  .header { padding: 0 16px; height: 52px; }
-  .logo { font-size: 14px; }
-  #user-name { display: none; }
-
-  /* 지표 카드 2열 */
-  .metrics { grid-template-columns: repeat(2,1fr); gap: 8px; }
-
-  /* 차트 그리드 1열 */
-  .chart-grid { grid-template-columns: 1fr; }
-
-  /* 테이블 스크롤 */
-  .card { overflow-x: auto; padding: 14px 12px; }
-  table { min-width: 500px; }
-
-  /* 입력 필드 크기 */
-  .ni, .di, .li, .li-sub { font-size: 13px; padding: 7px 8px; }
-}
 
 /* 로딩 스크린 애니메이션 */
 #loading-screen { animation: fadeIn .2s both; }
@@ -696,157 +623,11 @@ tr:hover:not(.tot-row):not(.cat-row) td { background: #FAFBFD; }
 .ps.pay-card { background: #EEF3FF; color: #2563EB; border-color: #2563EB; font-weight: 600; }
 .ps.pay-cash { background: #F0FDF4; color: #059669; border-color: #059669; font-weight: 600; }
 
-/* ━━ 모바일 테이블 최적화 ━━ */
-@media (max-width: 600px) {
-  table { min-width: unset !important; width: 100% !important; }
-  .card { overflow-x: unset !important; }
-  .hide-mobile { display: none !important; }
-  td, th { padding: 7px 5px !important; }
-  th { font-size: 9px !important; }
-  .di { font-size: 11px !important; padding: 4px 3px !important; min-width: 0 !important; }
-  .ni { font-size: 12px !important; padding: 5px 5px !important; }
-  .li { font-size: 12px !important; }
-  .btn-excel { font-size: 10px !important; padding: 3px 8px !important; }
 
-  /* 모바일 매출: 날짜(1) 매출처(2) 금액(3) 비고(4)숨김 정산서(5)숨김 삭제(6) */
-  #mob-tbl th:nth-child(1), #mob-tbl td:nth-child(1) { width: 90px !important; }
-  #mob-tbl th:nth-child(4), #mob-tbl td:nth-child(4),
-  #mob-tbl th:nth-child(5), #mob-tbl td:nth-child(5) { display: none !important; }
 
-  /* 홈 매출 동일 */
-  #hom-tbl th:nth-child(1), #hom-tbl td:nth-child(1) { width: 90px !important; }
-  #hom-tbl th:nth-child(4), #hom-tbl td:nth-child(4),
-  #hom-tbl th:nth-child(5), #hom-tbl td:nth-child(5) { display: none !important; }
 
-  /* 중고폰: 고객명(1) 개통일(2)숨김 매각일(3)숨김 금액(4) 매각업체(5)숨김 대금일(6)숨김 비고(7)숨김 삭제(8) */
-  #used-tbl th:nth-child(2), #used-tbl td:nth-child(2),
-  #used-tbl th:nth-child(3), #used-tbl td:nth-child(3),
-  #used-tbl th:nth-child(5), #used-tbl td:nth-child(5),
-  #used-tbl th:nth-child(6), #used-tbl td:nth-child(6),
-  #used-tbl th:nth-child(7), #used-tbl td:nth-child(7) { display: none !important; }
 
-  /* 카드지원: 고객명(1) 개통일(2)숨김 금액(3) 처리일(4)숨김 비고(5)숨김 삭제(6) */
-  #card-tbl th:nth-child(2), #card-tbl td:nth-child(2),
-  #card-tbl th:nth-child(4), #card-tbl td:nth-child(4),
-  #card-tbl th:nth-child(5), #card-tbl td:nth-child(5) { display: none !important; }
 
-  /* 현금지원 동일 */
-  #cash-tbl th:nth-child(2), #cash-tbl td:nth-child(2),
-  #cash-tbl th:nth-child(4), #cash-tbl td:nth-child(4),
-  #cash-tbl th:nth-child(5), #cash-tbl td:nth-child(5) { display: none !important; }
-
-  /* 영업외비용: 항목(1) 비고(2) 지급(3) 금액(4) 일자(5)숨김 정산서(6)숨김 삭제(7) */
-  #opx-tbl th:nth-child(5), #opx-tbl td:nth-child(5),
-  #opx-tbl th:nth-child(6), #opx-tbl td:nth-child(6) { display: none !important; }
-}
-
-/* ━━ 모바일 대시보드 최적화 ━━ */
-@media (max-width: 600px) {
-  /* 지표 카드 2열 */
-  .metrics { grid-template-columns: repeat(2,1fr) !important; gap: 8px !important; }
-  .mc { padding: 12px 12px 10px !important; }
-  .mc-val { font-size: 14px !important; }
-  .mc-lbl { font-size: 9px !important; margin-bottom: 6px !important; }
-  .mc-sub { font-size: 9px !important; }
-  .mc-icon { font-size: 13px !important; top: 10px; right: 10px; }
-
-  /* 당월순이익 카드 2열에서 전체너비 */
-  .mc:last-child { grid-column: span 2; }
-
-  /* 차트 1열 */
-  .chart-grid { grid-template-columns: 1fr !important; gap: 10px !important; }
-  .cw { height: 160px !important; }
-
-  /* 수익흐름 요약 폰트 축소 */
-  .flow-summary td { padding: 6px 8px !important; font-size: 12px !important; }
-  .flow-summary tr.big td { font-size: 13px !important; }
-
-  /* 현금흐름 타임라인 */
-  #tl-summary { font-size: 10px !important; gap: 8px !important; flex-wrap: wrap; }
-  #timeline-tbl td { font-size: 11px !important; padding: 6px 6px !important; }
-  #timeline-tbl th { font-size: 9px !important; padding: 6px 6px !important; }
-
-  /* 타임라인 필터 버튼 */
-  .tl-btn { font-size: 10px !important; padding: 3px 9px !important; }
-
-  /* 카드 패딩 축소 */
-  .card { padding: 14px 14px !important; }
-  .card-title { font-size: 10px !important; margin-bottom: 10px !important; }
-
-  /* body 패딩 */
-  .body { padding: 12px !important; padding-bottom: calc(72px + env(safe-area-inset-bottom)) !important; }
-}
-
-@media (max-width: 600px) {
-  /* 헤더 */
-  .header {
-    padding: 0 12px !important;
-    gap: 6px !important;
-    height: 48px !important;
-    overflow: visible !important;
-    flex-wrap: nowrap !important;
-  }
-  .logo { font-size: 12px !important; gap: 4px !important; }
-  .logo-icon { width: 22px !important; height: 22px !important; font-size: 11px !important; border-radius: 6px !important; }
-  .mon-sel { font-size: 11px !important; padding: 4px 6px !important; max-width: 90px !important; }
-  .btn { padding: 5px 8px !important; font-size: 11px !important; }
-
-  /* 헤더 우측 전체 숨기기 */
-  .header > div[style*="margin-left:auto"] { display: none !important; }
-
-  /* 탭 */
-  .tabs { padding: 0 !important; }
-  .tab { font-size: 9px !important; padding: 8px 2px 6px !important; }
-
-  /* 전체 레이아웃 */
-  .body { padding: 10px 10px !important; padding-bottom: calc(70px + env(safe-area-inset-bottom)) !important; }
-  .card { padding: 12px 12px !important; margin-bottom: 10px !important; width: 100% !important; }
-
-  /* 테이블 */
-  table { width: 100% !important; min-width: unset !important; table-layout: fixed !important; }
-  td, th { padding: 7px 5px !important; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  th { font-size: 9px !important; }
-  .di { font-size: 11px !important; padding: 4px 3px !important; width: 100% !important; }
-  .ni { font-size: 12px !important; padding: 5px 5px !important; width: 100% !important; }
-  .li { font-size: 12px !important; width: 100% !important; }
-  .btn-excel { font-size: 10px !important; padding: 3px 8px !important; }
-
-  /* 모바일 매출: 날짜(1) 매출처(2) 금액(3) 비고(4)숨김 정산서(5)숨김 삭제(6) */
-  #mob-tbl col:nth-child(1) { width: 35% !important; }
-  #mob-tbl col:nth-child(2) { width: 30% !important; }
-  #mob-tbl col:nth-child(3) { width: 30% !important; }
-  #mob-tbl th:nth-child(4), #mob-tbl td:nth-child(4),
-  #mob-tbl th:nth-child(5), #mob-tbl td:nth-child(5) { display: none !important; }
-
-  #hom-tbl col:nth-child(1) { width: 35% !important; }
-  #hom-tbl col:nth-child(2) { width: 30% !important; }
-  #hom-tbl col:nth-child(3) { width: 30% !important; }
-  #hom-tbl th:nth-child(4), #hom-tbl td:nth-child(4),
-  #hom-tbl th:nth-child(5), #hom-tbl td:nth-child(5) { display: none !important; }
-
-  /* 중고폰: 고객명(1) 금액(4)만 */
-  #used-tbl th:nth-child(2), #used-tbl td:nth-child(2),
-  #used-tbl th:nth-child(3), #used-tbl td:nth-child(3),
-  #used-tbl th:nth-child(5), #used-tbl td:nth-child(5),
-  #used-tbl th:nth-child(6), #used-tbl td:nth-child(6),
-  #used-tbl th:nth-child(7), #used-tbl td:nth-child(7) { display: none !important; }
-
-  /* 카드/현금지원: 고객명(1) 금액(3)만 */
-  #card-tbl th:nth-child(2), #card-tbl td:nth-child(2),
-  #card-tbl th:nth-child(4), #card-tbl td:nth-child(4),
-  #card-tbl th:nth-child(5), #card-tbl td:nth-child(5) { display: none !important; }
-  #cash-tbl th:nth-child(2), #cash-tbl td:nth-child(2),
-  #cash-tbl th:nth-child(4), #cash-tbl td:nth-child(4),
-  #cash-tbl th:nth-child(5), #cash-tbl td:nth-child(5) { display: none !important; }
-
-  /* 영업외비용: 항목(1) 지급(3) 금액(4) / 비고(2)숨김 일자(5)숨김 정산서(6)숨김 */
-  #opx-tbl th:nth-child(2), #opx-tbl td:nth-child(2),
-  #opx-tbl th:nth-child(5), #opx-tbl td:nth-child(5),
-  #opx-tbl th:nth-child(6), #opx-tbl td:nth-child(6) { display: none !important; }
-
-  /* 카드 타이틀 줄바꿈 방지 */
-  .card-title { flex-wrap: wrap !important; gap: 6px !important; }
-}
 </style>
 </head>
 <body>
@@ -886,83 +667,7 @@ tr:hover:not(.tot-row):not(.cat-row) td { background: #FAFBFD; }
 @keyframes spin { to { transform:rotate(360deg); } }
 /* login/noaccess visibility controlled by JS */
 
-/* ━━ 모바일 전체 최적화 ━━ */
-@media (max-width: 640px) {
 
-  /* 헤더 우측 완전 숨김 */
-  #header-right { display: none !important; }
-
-  /* 헤더 */
-  .header { padding: 0 10px !important; gap: 6px !important; height: 48px !important; }
-  .logo { font-size: 12px !important; }
-  .logo-icon { width: 22px !important; height: 22px !important; font-size: 11px !important; }
-  .mon-sel { font-size: 11px !important; padding: 4px 6px !important; }
-  .btn { padding: 4px 7px !important; font-size: 10px !important; }
-
-  /* 탭 */
-  .tabs { padding: 0 !important; }
-  .tab { font-size: 9px !important; padding: 8px 2px 6px !important; }
-
-  /* 본문 */
-  .body { padding: 10px !important; padding-bottom: calc(70px + env(safe-area-inset-bottom)) !important; }
-  .card { padding: 12px !important; margin-bottom: 10px !important; }
-
-  /* 대시보드 카드 2열 */
-  .metrics { grid-template-columns: repeat(2,1fr) !important; gap: 8px !important; }
-  .mc { padding: 11px !important; }
-  .mc:last-child { grid-column: span 2; }
-  .mc-val { font-size: 14px !important; }
-  .mc-lbl { font-size: 9px !important; }
-  .mc-sub { font-size: 9px !important; }
-  .mc-icon { display: none !important; }
-
-  /* 차트 1열 */
-  .chart-grid { grid-template-columns: 1fr !important; }
-  .cw { height: 160px !important; }
-
-  /* 테이블 공통 */
-  table { min-width: unset !important; width: 100% !important; }
-  .card { overflow-x: hidden !important; }
-  td, th { padding: 6px 4px !important; font-size: 11px !important; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  th { font-size: 9px !important; }
-  .di { font-size: 11px !important; padding: 3px !important; }
-  .ni { font-size: 11px !important; padding: 4px !important; }
-  .li { font-size: 11px !important; }
-  .ps { font-size: 10px !important; padding: 3px 4px !important; }
-  .btn-excel { font-size: 10px !important; padding: 3px 8px !important; }
-
-  /* 모바일 매출: 날짜·매출처·금액만 (비고·정산서 숨김) */
-  #mob-tbl th:nth-child(4), #mob-tbl td:nth-child(4),
-  #mob-tbl th:nth-child(5), #mob-tbl td:nth-child(5),
-  #mob-tbl th:nth-child(6), #mob-tbl td:nth-child(6) { display: none !important; }
-
-  #hom-tbl th:nth-child(4), #hom-tbl td:nth-child(4),
-  #hom-tbl th:nth-child(5), #hom-tbl td:nth-child(5),
-  #hom-tbl th:nth-child(6), #hom-tbl td:nth-child(6) { display: none !important; }
-
-  /* 중고폰: 고객명·금액만 */
-  #used-tbl th:nth-child(2), #used-tbl td:nth-child(2),
-  #used-tbl th:nth-child(3), #used-tbl td:nth-child(3),
-  #used-tbl th:nth-child(5), #used-tbl td:nth-child(5),
-  #used-tbl th:nth-child(6), #used-tbl td:nth-child(6),
-  #used-tbl th:nth-child(7), #used-tbl td:nth-child(7),
-  #used-tbl th:nth-child(8), #used-tbl td:nth-child(8) { display: none !important; }
-
-  /* 카드·현금지원: 고객명·금액만 */
-  #card-tbl th:nth-child(2), #card-tbl td:nth-child(2),
-  #card-tbl th:nth-child(4), #card-tbl td:nth-child(4),
-  #card-tbl th:nth-child(5), #card-tbl td:nth-child(5),
-  #card-tbl th:nth-child(6), #card-tbl td:nth-child(6) { display: none !important; }
-  #cash-tbl th:nth-child(2), #cash-tbl td:nth-child(2),
-  #cash-tbl th:nth-child(4), #cash-tbl td:nth-child(4),
-  #cash-tbl th:nth-child(5), #cash-tbl td:nth-child(5),
-  #cash-tbl th:nth-child(6), #cash-tbl td:nth-child(6) { display: none !important; }
-
-  /* 영업외비용: 항목·지급·금액만 */
-  #opx-tbl th:nth-child(2), #opx-tbl td:nth-child(2),
-  #opx-tbl th:nth-child(5), #opx-tbl td:nth-child(5),
-  #opx-tbl th:nth-child(6), #opx-tbl td:nth-child(6) { display: none !important; }
-}
 </style>
 
 
