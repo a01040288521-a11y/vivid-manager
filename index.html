@@ -1358,6 +1358,7 @@ function setM(k,f,v)  {
   const r=settle[curMon].mob.find(x=>x.k===k); if(!r) return;
   if(v==='__edit__') { r.__editNote=true; renderSettleInput(); return; }
   r[f]=(f==='l'||f==='date'||f==='note'||f==='link')?v:parseInput(v);
+  r._mod = modInfo();
   if(f==='link'||f==='note') renderSettleInput();
   updateRevFoot(); deferDash(); save();
 }
@@ -1368,6 +1369,7 @@ function setH(k,f,v)  {
   const r=settle[curMon].hom.find(x=>x.k===k); if(!r) return;
   if(v==='__edit__') { r.__editNote=true; renderSettleInput(); return; }
   r[f]=(f==='l'||f==='date'||f==='note'||f==='link')?v:parseInput(v);
+  r._mod = modInfo();
   if(f==='link'||f==='note') renderSettleInput();
   updateRevFoot(); deferDash(); save();
 }
@@ -1403,8 +1405,8 @@ function addOpxCat() {
 function delOpxCat(k) { settle[curMon].opx = settle[curMon].opx.filter(o => o.k !== k); renderOpxTree(); deferDash(); save(); }
 function toggleCat(k) { const o = settle[curMon].opx.find(x => x.k === k); if (o) o.open = !o.open; renderOpxTree(); }
 function setOpxCatLabel(k, v) { const o = settle[curMon].opx.find(x => x.k === k); if (o) o.l = v; save(); }
-function setOpxCatPay(k, v) { const o = settle[curMon].opx.find(x => x.k === k); if (o) o.p = v; save(); }
-function setOpxCatMemo(k, v) { const o = settle[curMon].opx.find(x => x.k === k); if (o) { o.memo = v; save(); } }
+function setOpxCatPay(k, v) { const o = settle[curMon].opx.find(x => x.k === k); if (o) { o.p = v; o._mod = modInfo(); save(); } }
+function setOpxCatMemo(k, v) { const o = settle[curMon].opx.find(x => x.k === k); if (o) { o.memo = v; o._mod = modInfo(); save(); } }
 function addSub(catK) {
   const o = settle[curMon].opx.find(x => x.k === catK);
   if (o) { o.subs.push({ k: uid(), date: '', l: '세부 항목', p: o.p, amt: 0, note: '', link: '' }); o.open = true; }
@@ -1422,6 +1424,7 @@ function setSub(catK, subK, f, v) {
   const tot = catTotal(o);
   const el = document.getElementById('cat-tot-' + catK);
   if (el) { el.textContent = fmt(tot) + '원'; }
+  o._mod = modInfo();
   if (f === 'link') renderOpxTree();
   updateOpxFoot(); deferDash(); save();
 }
@@ -1445,6 +1448,7 @@ function renderSettleInput() {
         : `<input class="ni ni-l" type="text" value="" placeholder="드라이브 링크" style="font-size:11px" onchange="setM('${s.k}','link',this.value)">`
       }
     </td>
+    <td style="text-align:right">${s._mod ? `<span style="font-size:10px;color:var(--text3);white-space:nowrap">${s._mod.by} · ${s._mod.date}</span>` : ''}</td>
     <td><button class="xbtn" onclick="delMobRow('${s.k}')">×</button></td>
   </tr>`).join('');
 
@@ -1536,6 +1540,7 @@ function renderOpxTree() {
         <input class="note-input" type="text" value="${cat.memo||''}" placeholder="" onchange="setOpxCatMemo('${cat.k}',this.value)">
       </td>
       <td></td>
+      <td style="text-align:right;padding:5px 8px">${cat._mod ? `<span style="font-size:10px;color:var(--text3);white-space:nowrap">${cat._mod.by} · ${cat._mod.date}</span>` : ''}</td>
       <td><button class="xbtn" onclick="delOpxCat('${cat.k}')">×</button></td>
     </tr>`;
 
@@ -1905,16 +1910,40 @@ function renderComp() {
 
 /* ══ 탭 ══ */
 function goTab(id) {
-  document.querySelectorAll('.tab').forEach((t, i) => t.classList.toggle('active', ['dash', 'settle', 'flow', 'comp'][i] === id));
-  document.querySelectorAll('.sec').forEach(s => {
-    s.classList.remove('active');
-    s.style.animation = 'none';
+  const tabs = ['dash', 'settle', 'flow', 'comp'];
+  // 탭 버튼 활성화
+  document.querySelectorAll('.tab').forEach((t, i) => t.classList.toggle('active', tabs[i] === id));
+  // 모든 섹션 숨기기
+  tabs.forEach(tid => {
+    const s = document.getElementById('t-' + tid);
+    if (s) { s.classList.remove('active'); s.style.display = 'none'; }
   });
+  // 선택한 섹션만 표시
   const el = document.getElementById('t-' + id);
-  el.classList.add('active');
-  el.style.animation = '';
-  void el.offsetWidth; // reflow
-  el.style.animation = 'fadeInUp .32s cubic-bezier(.22,1,.36,1) both';
+  if (el) {
+    el.classList.add('active');
+    el.style.display = 'block';
+    el.style.animation = 'fadeInUp .32s cubic-bezier(.22,1,.36,1) both';
+  }
+  // 상단으로 스크롤
+  window.scrollTo(0, 0);
+  // 탭별 렌더링
+  if (id === 'dash')   renderDash();
+  if (id === 'flow')   { renderFlow(); renderTimeline(); }
+  if (id === 'comp')   renderComp();
+}
+
+
+/* ━━ 수정자 기록 ━━ */
+function modInfo() {
+  const name = currentUser ? (currentUser.displayName || currentUser.email.split('@')[0]) : '미리보기';
+  const now = new Date();
+  const date = (now.getMonth()+1).toString().padStart(2,'0') + '-' + now.getDate().toString().padStart(2,'0');
+  return { by: name, date: date };
+}
+function modBadge(mod) {
+  if (!mod || !mod.by) return '';
+  return `<span style="font-size:10px;color:var(--text3);white-space:nowrap">${mod.by} · ${mod.date}</span>`;
 }
 
 function applyPayColors() {
