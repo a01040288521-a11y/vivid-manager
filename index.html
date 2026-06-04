@@ -656,6 +656,23 @@ tr:hover:not(.tot-row):not(.cat-row) td { background: #FAFBFD; }
 #opx-tbl td:first-child, #opx-tbl th:first-child { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 #opx-tbl .cat-total { white-space: nowrap !important; }
 .tot-row td { white-space: nowrap !important; }
+
+/* ━━ 드래그 핸들 ━━ */
+.drag-handle {
+  cursor: grab;
+  color: var(--text3);
+  padding: 0 6px;
+  font-size: 14px;
+  line-height: 1;
+  flex-shrink: 0;
+  opacity: .4;
+  transition: opacity .15s;
+  user-select: none;
+}
+.drag-handle:hover { opacity: 1; color: var(--blue); }
+.drag-handle:active { cursor: grabbing; }
+tr.dragging { opacity: .4; background: var(--blue-bg) !important; }
+tr.drag-over td { border-top: 2px solid var(--blue) !important; }
 </style>
 </head>
 <body>
@@ -1353,7 +1370,7 @@ function addMon() {
 
 /* ══ 모바일 ══ */
 function addMobRow()  { settle[curMon].mob.push({ k:uid(), date:'', l:'새 매출처', rev:0, note:'', link:'' }); renderSettleInput(); save(); }
-function delMobRow(k) { settle[curMon].mob = settle[curMon].mob.filter(r=>r.k!==k); renderSettleInput(); deferDash(); save(); }
+function delMobRow(k) { if(!confirm('이 항목을 삭제할까요?')) return; settle[curMon].mob = settle[curMon].mob.filter(r=>r.k!==k); renderSettleInput(); deferDash(); save(); }
 function setM(k,f,v)  {
   const r=settle[curMon].mob.find(x=>x.k===k); if(!r) return;
   if(v==='__edit__') { r.__editNote=true; renderSettleInput(); return; }
@@ -1364,7 +1381,7 @@ function setM(k,f,v)  {
 }
 /* ══ 홈 ══ */
 function addHomRow()  { settle[curMon].hom.push({ k:uid(), date:'', l:'새 매출처', rev:0, note:'', link:'' }); renderSettleInput(); save(); }
-function delHomRow(k) { settle[curMon].hom = settle[curMon].hom.filter(r=>r.k!==k); renderSettleInput(); deferDash(); save(); }
+function delHomRow(k) { if(!confirm('이 항목을 삭제할까요?')) return; settle[curMon].hom = settle[curMon].hom.filter(r=>r.k!==k); renderSettleInput(); deferDash(); save(); }
 function setH(k,f,v)  {
   const r=settle[curMon].hom.find(x=>x.k===k); if(!r) return;
   if(v==='__edit__') { r.__editNote=true; renderSettleInput(); return; }
@@ -1375,7 +1392,7 @@ function setH(k,f,v)  {
 }
 /* ══ 중고폰 ══ */
 function addUsedRow()  { if(!settle[curMon].used) settle[curMon].used=[]; settle[curMon].used.push({ k:uid(), custName:'', openDate:'', saleDate:'', amt:0, saleCompany:'', payDate:'', note:'' }); renderSettleInput(); save(); }
-function delUsedRow(k) { settle[curMon].used = (settle[curMon].used||[]).filter(r=>r.k!==k); renderSettleInput(); deferDash(); save(); }
+function delUsedRow(k) { if(!confirm('이 항목을 삭제할까요?')) return; settle[curMon].used = (settle[curMon].used||[]).filter(r=>r.k!==k); renderSettleInput(); deferDash(); save(); }
 function setU(k,f,v)   {
   const r=(settle[curMon].used||[]).find(x=>x.k===k); if(!r) return;
   if(v==='__edit__') { r.__editNote=true; renderSettleInput(); return; }
@@ -1385,7 +1402,7 @@ function setU(k,f,v)   {
 }
 /* ══ 카드지원 ══ */
 function addCardRow()   { if(!settle[curMon].card_sup) settle[curMon].card_sup=[]; settle[curMon].card_sup.push({ k:uid(), custName:'', openDate:'', amt:0, processDate:'', note:'' }); renderSettleInput(); save(); }
-function delCardRow(k)  { settle[curMon].card_sup = (settle[curMon].card_sup||[]).filter(r=>r.k!==k); renderSettleInput(); deferDash(); save(); }
+function delCardRow(k)  { if(!confirm('이 항목을 삭제할까요?')) return; settle[curMon].card_sup = (settle[curMon].card_sup||[]).filter(r=>r.k!==k); renderSettleInput(); deferDash(); save(); }
 function setCard(k,f,v) {
   const r=(settle[curMon].card_sup||[]).find(x=>x.k===k); if(!r) return;
   if(v==='__edit__') { r.__editNote=true; renderSettleInput(); return; }
@@ -1395,7 +1412,7 @@ function setCard(k,f,v) {
 }
 /* ══ 현금지원 ══ */
 function addCashRow()   { if(!settle[curMon].cash_sup) settle[curMon].cash_sup=[]; settle[curMon].cash_sup.push({ k:uid(), custName:'', openDate:'', amt:0, processDate:'', note:'' }); renderSettleInput(); save(); }
-function delCashRow(k)  { settle[curMon].cash_sup = (settle[curMon].cash_sup||[]).filter(r=>r.k!==k); renderSettleInput(); deferDash(); save(); }
+function delCashRow(k)  { if(!confirm('이 항목을 삭제할까요?')) return; settle[curMon].cash_sup = (settle[curMon].cash_sup||[]).filter(r=>r.k!==k); renderSettleInput(); deferDash(); save(); }
 function setCash(k,f,v) { const r=(settle[curMon].cash_sup||[]).find(x=>x.k===k); if(r) r[f]=(f==='amt')?parseInput(v):v; updateOpCostFoot(); deferDash(); save(); }
 /* ══ 영업외비용 트리 ══ */
 function addOpxCat() {
@@ -1434,7 +1451,8 @@ function renderSettleInput() {
   const d = settle[curMon]; if (!d) return;
 
   // 모바일 매출: 날짜 | 매출처 | 매출금액 | 비고
-  document.querySelector('#mob-tbl tbody').innerHTML = (d.mob||[]).map(s=>`<tr>
+  document.querySelector('#mob-tbl tbody').innerHTML = (d.mob||[]).map((s,i)=>`<tr draggable="true" data-idx="${i}" ondragstart="dragStart(event,this)" ondragend="dragEnd(this)" ondragover="dragOver(event,this)" ondrop="dragDrop(event,'mob',${i})">
+    <td style="width:20px;padding:0"><span class="drag-handle">⠿</span></td>
     <td><input class="di" type="date" value="${s.date||''}" onchange="setM('${s.k}','date',this.value)"></td>
     <td><input class="li" value="${s.l||''}" onchange="setM('${s.k}','l',this.value)" placeholder="매출처"></td>
     <td><input class="ni" type="text" inputmode="numeric" value="${s.rev?Number(s.rev).toLocaleString('ko-KR'):''}" oninput="fmtInput(this)" onchange="setM('${s.k}','rev',this.value)"></td>
@@ -1453,7 +1471,8 @@ function renderSettleInput() {
   </tr>`).join('');
 
   // 홈 매출: 날짜 | 매출처 | 매출금액 | 비고
-  document.querySelector('#hom-tbl tbody').innerHTML = (d.hom||[]).map(s=>`<tr>
+  document.querySelector('#hom-tbl tbody').innerHTML = (d.hom||[]).map((s,i)=>`<tr draggable="true" data-idx="${i}" ondragstart="dragStart(event,this)" ondragend="dragEnd(this)" ondragover="dragOver(event,this)" ondrop="dragDrop(event,'hom',${i})">
+    <td style="width:20px;padding:0"><span class="drag-handle">⠿</span></td>
     <td><input class="di" type="date" value="${s.date||''}" onchange="setH('${s.k}','date',this.value)"></td>
     <td><input class="li" value="${s.l||''}" onchange="setH('${s.k}','l',this.value)" placeholder="매출처"></td>
     <td><input class="ni" type="text" inputmode="numeric" value="${s.rev?Number(s.rev).toLocaleString('ko-KR'):''}" oninput="fmtInput(this)" onchange="setH('${s.k}','rev',this.value)"></td>
@@ -1471,7 +1490,8 @@ function renderSettleInput() {
   </tr>`).join('');
 
   // 중고폰: 고객명 | 개통일자 | 매각일자 | 매각금액 | 매각업체 | 대금일자
-  document.querySelector('#used-tbl tbody').innerHTML = (d.used||[]).map(s=>`<tr>
+  document.querySelector('#used-tbl tbody').innerHTML = (d.used||[]).map((s,i)=>`<tr draggable="true" data-idx="${i}" ondragstart="dragStart(event,this)" ondragend="dragEnd(this)" ondragover="dragOver(event,this)" ondrop="dragDrop(event,'used',${i})">
+    <td style="width:20px;padding:0"><span class="drag-handle">⠿</span></td>
     <td><input class="li" value="${s.custName||''}" onchange="setU('${s.k}','custName',this.value)" placeholder="고객명"></td>
     <td><input class="di" type="date" value="${s.openDate||''}" onchange="setU('${s.k}','openDate',this.value)"></td>
     <td><input class="di" type="date" value="${s.saleDate||''}" onchange="setU('${s.k}','saleDate',this.value)"></td>
@@ -1483,7 +1503,8 @@ function renderSettleInput() {
   </tr>`).join('');
 
   // 카드지원: 고객명 | 개통일자 | 지원금액 | 처리일자
-  document.querySelector('#card-tbl tbody').innerHTML = (d.card_sup||[]).map(s=>`<tr>
+  document.querySelector('#card-tbl tbody').innerHTML = (d.card_sup||[]).map((s,i)=>`<tr draggable="true" data-idx="${i}" ondragstart="dragStart(event,this)" ondragend="dragEnd(this)" ondragover="dragOver(event,this)" ondrop="dragDrop(event,'card',${i})">
+    <td style="width:20px;padding:0"><span class="drag-handle">⠿</span></td>
     <td><input class="li" value="${s.custName||''}" onchange="setCard('${s.k}','custName',this.value)" placeholder="고객명"></td>
     <td><input class="di" type="date" value="${s.openDate||''}" onchange="setCard('${s.k}','openDate',this.value)"></td>
     <td><input class="ni" type="text" inputmode="numeric" value="${s.amt?Number(s.amt).toLocaleString('ko-KR'):''}" oninput="fmtInput(this)" onchange="setCard('${s.k}','amt',this.value)"></td>
@@ -1493,7 +1514,8 @@ function renderSettleInput() {
   </tr>`).join('');
 
   // 현금지원: 고객명 | 개통일자 | 지원금액 | 처리일자
-  document.querySelector('#cash-tbl tbody').innerHTML = (d.cash_sup||[]).map(s=>`<tr>
+  document.querySelector('#cash-tbl tbody').innerHTML = (d.cash_sup||[]).map((s,i)=>`<tr draggable="true" data-idx="${i}" ondragstart="dragStart(event,this)" ondragend="dragEnd(this)" ondragover="dragOver(event,this)" ondrop="dragDrop(event,'cash',${i})">
+    <td style="width:20px;padding:0"><span class="drag-handle">⠿</span></td>
     <td><input class="li" value="${s.custName||''}" onchange="setCash('${s.k}','custName',this.value)" placeholder="고객명"></td>
     <td><input class="di" type="date" value="${s.openDate||''}" onchange="setCash('${s.k}','openDate',this.value)"></td>
     <td><input class="ni" type="text" inputmode="numeric" value="${s.amt?Number(s.amt).toLocaleString('ko-KR'):''}" oninput="fmtInput(this)" onchange="setCash('${s.k}','amt',this.value)"></td>
@@ -1510,7 +1532,7 @@ function renderSettleInput() {
 function renderOpxTree() {
   const d = settle[curMon]; if (!d) return;
   let html = '';
-  d.opx.forEach(cat => {
+  d.opx.forEach((cat, catIdx) => {
     const tot = catTotal(cat);
     const subCnt = cat.subs.length;
     const isOpen = cat.open;
@@ -1518,9 +1540,10 @@ function renderOpxTree() {
     // ── 대분류 행
     // 접힌 상태: 제목 옆 = 자유 메모 입력
     // 펼친 상태: 제목 옆 = 자유 메모 입력 (동일), 하단에 세부항목 추가 버튼
-    html += `<tr class="cat-row">
+    html += `<tr class="cat-row" draggable="true" data-idx="${catIdx}" ondragstart="dragStart(event,this)" ondragend="dragEnd(this)" ondragover="dragOver(event,this)" ondrop="dragDrop(event,'opx',${catIdx})">
       <td style="padding:0">
         <div style="display:flex;align-items:center;gap:4px;padding:7px 8px 7px 6px">
+          <span class="drag-handle" style="font-size:12px">⠿</span>
           <button class="toggle-btn" onclick="toggleCat('${cat.k}')" title="${isOpen ? '접기' : '펼치기 ('+subCnt+'건)'}">
             ${isOpen ? '▾' : '▸'}
           </button>
@@ -1548,9 +1571,10 @@ function renderOpxTree() {
     if (isOpen) {
       cat.subs.forEach((sub, idx) => {
         const isLast = idx === cat.subs.length - 1;
-        html += `<tr class="sub-row">
+        html += `<tr class="sub-row" draggable="true" data-idx="${idx}" ondragstart="dragStart(event,this)" ondragend="dragEnd(this)" ondragover="dragOver(event,this)" ondrop="dragDrop(event,'sub',${idx},'${cat.k}')">
           <td style="padding:5px 4px 5px 0">
             <div style="display:flex;align-items:center;gap:2px">
+              <span class="drag-handle" style="font-size:11px">⠿</span>
               <span class="tree-icon">${isLast && false ? '└' : '├'}</span>
               <input class="li-sub" style="flex:1;min-width:60px" value="${sub.l}" onchange="setSub('${cat.k}','${sub.k}','l',this.value)">
             </div>
@@ -1876,7 +1900,7 @@ function addTx() {
   setTimeout(() => { ok.textContent = ''; }, 1800);
   save(); initMonSel(); renderFlow(); renderTimeline();
 }
-function delTx(id) { if (!confirm('이 거래를 삭제할까요?')) return; txns = txns.filter(t => t.id !== id); save(); renderFlow(); renderTimeline(); }
+function delTx(id) { if (!confirm('이 항목을 삭제할까요?')) return; txns = txns.filter(t => t.id !== id); save(); renderFlow(); renderTimeline(); }
 
 /* ══ 월별 비교 ══ */
 function renderComp() {
@@ -1944,6 +1968,51 @@ function modInfo() {
 function modBadge(mod) {
   if (!mod || !mod.by) return '';
   return `<span style="font-size:10px;color:var(--text3);white-space:nowrap">${mod.by} · ${mod.date}</span>`;
+}
+
+
+/* ━━ 드래그 앤 드롭 ━━ */
+let dragSrc = null;
+
+function dragStart(e, el) {
+  dragSrc = el;
+  el.classList.add('dragging');
+  e.dataTransfer.effectAllowed = 'move';
+}
+function dragEnd(el) {
+  el.classList.remove('dragging');
+  document.querySelectorAll('tr.drag-over').forEach(r => r.classList.remove('drag-over'));
+  dragSrc = null;
+}
+function dragOver(e, el) {
+  e.preventDefault();
+  if (dragSrc && dragSrc !== el) {
+    document.querySelectorAll('tr.drag-over').forEach(r => r.classList.remove('drag-over'));
+    el.classList.add('drag-over');
+  }
+}
+function dragDrop(e, type, idx, catK) {
+  e.preventDefault();
+  if (!dragSrc) return;
+  const fromIdx = parseInt(dragSrc.dataset.idx);
+  const toIdx = idx;
+  if (fromIdx === toIdx) return;
+  const d = settle[curMon];
+  let arr;
+  if (type === 'mob')      arr = d.mob;
+  else if (type === 'hom') arr = d.hom;
+  else if (type === 'used') arr = d.used;
+  else if (type === 'card') arr = d.card_sup;
+  else if (type === 'cash') arr = d.cash_sup;
+  else if (type === 'opx')  arr = d.opx;
+  else if (type === 'sub')  arr = d.opx.find(o=>o.k===catK).subs;
+  if (!arr) return;
+  const [moved] = arr.splice(fromIdx, 1);
+  arr.splice(toIdx, 0, moved);
+  save();
+  if (type === 'opx' || type === 'sub') renderOpxTree();
+  else renderSettleInput();
+  deferDash();
 }
 
 function applyPayColors() {
