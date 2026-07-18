@@ -1147,8 +1147,9 @@ const uid = () => Math.random().toString(36).slice(2, 8);
 const fmt = n => Number(n || 0).toLocaleString('ko-KR');
 
 function fmtInput(el) {
+  const isNeg = el.value.startsWith('-');
   const raw = el.value.replace(/[^0-9]/g, '');
-  el.value = raw ? Number(raw).toLocaleString('ko-KR') : '';
+  el.value = raw ? (isNeg ? '-' : '') + Number(raw).toLocaleString('ko-KR') : (isNeg ? '-' : '');
 }
 function parseInput(v) {
   return parseFloat(String(v).replace(/,/g, '')) || 0;
